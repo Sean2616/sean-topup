@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Sean Top Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #0f172a; color: #f8fafc; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-user-shield text-2xl text-cyan-400"></i>
+            <span class="font-bold text-lg tracking-wider">SEAN<span class="text-cyan-400">ADMIN</span></span>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/" class="text-sm text-gray-300 hover:text-cyan-400 transition">
+                <i class="fa-solid fa-store mr-1"></i> Lihat Website
+            </a>
+            <button id="btnLogout" onclick="logout()" class="hidden bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                Keluar
+            </button>
+        </div>
+    </nav>
+
+    <!-- LAYAR LOGIN ADMIN -->
+    <div id="loginSection" class="max-w-md mx-auto mt-20 p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-cyan-500/10 text-cyan-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h1 class="text-xl font-bold">Login Admin Sean Top Up</h1>
+            <p class="text-xs text-gray-400 mt-1">Masukkan password admin untuk mengatur harga & pesanan</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Password Admin</label>
+                <input type="password" id="adminPassInput" placeholder="Masukkan password (default: sean123)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-cyan-500">
+            </div>
+            <button onclick="loginAdmin()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-3 rounded-xl transition">
+                Masuk Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- LAYAR DASHBOARD ADMIN -->
+    <div id="dashboardSection" class="hidden max-w-6xl mx-auto px-4 py-8 space-y-8">
+        
+        <!-- Bagian 1: Tambah Produk Baru -->
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+            <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-cyan-400"></i> Tambah Nominal / Produk Baru
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                <input type="text" id="newName" placeholder="Nama (Misal: 344 Diamonds)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+                <input type="number" id="newPrice" placeholder="Harga (Misal: 82000)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+                <input type="text" id="newSku" placeholder="Kode SKU Digiflazz (ML344)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm uppercase">
+                <select id="newCategory" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+                    <option value="diamond">Top Up Instant (Diamond)</option>
+                    <option value="special">Spesial Pass (WDP/Twilight)</option>
+                </select>
+                <button onclick="addProduct()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl px-4 py-2 text-sm transition">
+                    <i class="fa-solid fa-plus mr-1"></i> Tambah
+                </button>
+            </div>
+        </div>
+
+        <!-- Bagian 2: Atur Harga Produk -->
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+                <div>
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-tags text-cyan-400"></i> Pengaturan Harga & SKU Produk
+                    </h2>
+                    <p class="text-xs text-gray-400">Ubah angka pada kolom Harga atau SKU, lalu klik tombol <b>Simpan Semua Perubahan</b>.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="adjustAllPrices(500)" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-2 rounded-lg transition">+ Rp 500 Semua</button>
+                    <button onclick="adjustAllPrices(-500)" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-2 rounded-lg transition">- Rp 500 Semua</button>
+                    <button onclick="saveAllProducts()" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold text-xs px-4 py-2 rounded-lg shadow-lg shadow-cyan-500/30 transition">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Semua Perubahan
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-700 text-gray-400 text-xs uppercase">
+                            <th class="py-3 px-2">Nama Produk</th>
+                            <th class="py-3 px-2">Kategori</th>
+                            <th class="py-3 px-2">Kode SKU Digiflazz</th>
+                            <th class="py-3 px-2">Harga Jual (Rp)</th>
+                            <th class="py-3 px-2 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody" class="divide-y divide-slate-700/60">
+                        <!-- Diisi otomatis oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bagian 3: Daftar Pesanan Masuk & Manual Approve -->
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-cyan-400"></i> Pantau Pesanan Masuk (Live)
+                    </h2>
+                    <p class="text-xs text-gray-400">Jika notifikasi HP sedang mati, Anda bisa klik <b>Proses Digiflazz</b> secara manual di sini.</p>
+                </div>
+                <button onclick="loadOrders()" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-2 rounded-lg transition">
+                    <i class="fa-solid fa-rotate mr-1"></i> Refresh Pesanan
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-700 text-gray-400 text-xs uppercase">
+                            <th class="py-3 px-2">Invoice</th>
+                            <th class="py-3 px-2">Tujuan (ID MLBB)</th>
+                            <th class="py-3 px-2">Item & SKU</th>
+                            <th class="py-3 px-2">Total Transfer (Unik)</th>
+                            <th class="py-3 px-2">Status</th>
+                            <th class="py-3 px-2 text-center">Tindakan Manual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody" class="divide-y divide-slate-700/60">
+                        <tr><td colspan="6" class="text-center py-4 text-gray-500">Belum ada pesanan aktif</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let adminPassword = '';
+        let productsList = [];
+
+        async function loginAdmin() {
+            const pass = document.getElementById('adminPassInput').value;
+            if (!pass) return;
+
+            const res = await fetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pass, action: 'login' })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                adminPassword = pass;
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                document.getElementById('btnLogout').classList.remove('hidden');
+                loadProducts();
+                loadOrders();
+            } else {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, background: '#1e293b', color: '#fff' });
+            }
+        }
+
+        function logout() {
+            adminPassword = '';
+            location.reload();
+        }
+
+        async function loadProducts() {
+            const res = await fetch('/api/products');
+            const data = await res.json();
+            productsList = data.products || [];
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = '';
+
+            productsList.forEach((p, index) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="py-2.5 px-2">
+                            <input type="text" value="${p.name}" onchange="updateField(${index}, 'name', this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm w-full">
+                        </td>
+                        <td class="py-2.5 px-2">
+                            <select onchange="updateField(${index}, 'category', this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs">
+                                <option value="diamond" ${p.category === 'diamond' ? 'selected' : ''}>Diamond</option>
+                                <option value="special" ${p.category === 'special' ? 'selected' : ''}>Spesial Pass</option>
+                            </select>
+                        </td>
+                        <td class="py-2.5 px-2">
+                            <input type="text" value="${p.sku}" onchange="updateField(${index}, 'sku', this.value.toUpperCase())" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm w-28 uppercase font-mono text-cyan-400">
+                        </td>
+                        <td class="py-2.5 px-2">
+                            <input type="number" value="${p.price}" onchange="updateField(${index}, 'price', parseInt(this.value))" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm w-36 font-bold text-emerald-400">
+                        </td>
+                        <td class="py-2.5 px-2 text-center">
+                            <button onclick="deleteProduct(${index})" class="text-red-400 hover:text-red-300 px-2 py-1 rounded">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateField(index, field, value) {
+            productsList[index][field] = value;
+        }
+
+        function adjustAllPrices(amount) {
+            productsList = productsList.map(p => ({ ...p, price: Math.max(500, parseInt(p.price) + amount) }));
+            renderProducts();
+        }
+
+        function addProduct() {
+            const name = document.getElementById('newName').value.trim();
+            const price = parseInt(document.getElementById('newPrice').value);
+            const sku = document.getElementById('newSku').value.trim().toUpperCase();
+            const category = document.getElementById('newCategory').value;
+
+            if (!name || !price || !sku) {
+                Swal.fire({ icon: 'warning', title: 'Lengkapi Data', text: 'Nama, Harga, dan Kode SKU wajib diisi!', background: '#1e293b', color: '#fff' });
+                return;
+            }
+
+            productsList.push({ id: Date.now(), name, price, sku, category, badge: '' });
+            document.getElementById('newName').value = '';
+            document.getElementById('newPrice').value = '';
+            document.getElementById('newSku').value = '';
+            renderProducts();
+            saveAllProducts();
+        }
+
+        function deleteProduct(index) {
+            productsList.splice(index, 1);
+            renderProducts();
+        }
+
+        async function saveAllProducts() {
+            Swal.fire({ title: 'Menyimpan...', background: '#1e293b', color: '#fff', didOpen: () => Swal.showLoading() });
+
+            const res = await fetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: adminPassword, products: productsList })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, background: '#1e293b', color: '#fff', timer: 1500 });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, background: '#1e293b', color: '#fff' });
+            }
+        }
+
+        async function loadOrders() {
+            const res = await fetch(`/api/order?action=list&password=${encodeURIComponent(adminPassword)}`);
+            const data = await res.json();
+            const tbody = document.getElementById('orderTableBody');
+
+            if (!data.orders || data.orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">Belum ada pesanan yang masuk</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            data.orders.forEach(o => {
+                const badge = o.status === 'PAID'
+                    ? '<span class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs font-bold">LUNAS</span>'
+                    : '<span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs font-bold">PENDING</span>';
+
+                const btnAction = o.status === 'PENDING'
+                    ? `<button onclick="approveOrder(${o.totalPrice})" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs transition">Setujui & Tembak Digiflazz</button>`
+                    : `<span class="text-xs text-gray-500">Selesai</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-800">
+                        <td class="py-3 px-2 font-mono text-cyan-400 text-xs">${o.invoiceId}</td>
+                        <td class="py-3 px-2">${o.nickname} <br><span class="text-xs text-gray-400">${o.userId} (${o.zoneId})</span></td>
+                        <td class="py-3 px-2">${o.item} <span class="text-xs text-gray-400">[${o.sku}]</span></td>
+                        <td class="py-3 px-2 font-bold text-emerald-400">Rp ${o.totalPrice.toLocaleString('id-ID')}</td>
+                        <td class="py-3 px-2">${badge}</td>
+                        <td class="py-3 px-2 text-center">${btnAction}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function approveOrder(totalPrice) {
+            const confirm = await Swal.fire({
+                title: 'Proses ke Digiflazz?',
+                text: `Pastikan uang Rp ${totalPrice.toLocaleString('id-ID')} sudah masuk ke GoPay Merchant Anda.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Kirim Diamond!',
+                background: '#1e293b', color: '#fff'
+            });
+
+            if (!confirm.isConfirmed) return;
+
+            const res = await fetch('/api/order?action=approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: adminPassword, totalPrice })
+            });
+            const data = await res.json();
+
+            Swal.fire({
+                icon: data.success ? 'success' : 'info',
+                title: data.success ? 'Berhasil Diproses!' : 'Info',
+                text: data.message,
+                background: '#1e293b', color: '#fff'
+            });
+            loadOrders();
+        }
+    </script>
+</body>
+</html>
