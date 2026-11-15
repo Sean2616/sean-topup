@@ -86,13 +86,15 @@
 </head>
 <body class="antialiased selection:bg-[#faae2b] selection:text-black pb-12">
 
-    <!-- Navbar -->
+    <!-- Navbar (Logo MLBB Terbaru & Tanpa Tombol Admin) -->
     <nav class="max-w-5xl mx-auto px-4 pt-5">
         <div class="neo-card bg-[#fff9eb] px-5 py-3.5 flex items-center justify-between">
             <a href="/" class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-[#faae2b] border-2 border-black rounded-lg flex items-center justify-center shadow-[2px_2px_0px_#000]">
-                    <i class="fa-solid fa-gamepad text-xl text-black"></i>
-                </div>
+                <img src="/logo.png"
+                     onerror="this.onerror=null; this.src='https://unavatar.io/x/MobileLegendsOL?fallback=https://img.utdstc.com/icon/78d/66f/78d66ff1ab122337fd6d2593774881e6f3166e0002c8856565107b7901f2b300:200';"
+                     referrerpolicy="no-referrer"
+                     alt="Logo MLBB Terbaru"
+                     class="w-11 h-11 object-cover border-2 border-black rounded-lg shadow-[2px_2px_0px_#000] bg-white">
                 <div>
                     <span class="font-extrabold text-xl tracking-tight text-black block leading-none">
                         sean<span class="bg-[#faae2b] px-1 border border-black rounded">topup</span>.co
@@ -100,20 +102,24 @@
                     <span class="font-mono-saweria text-[11px] text-gray-600">Top Up Cepat Tanpa Ribet</span>
                 </div>
             </a>
-            <div class="flex items-center gap-3">
-                <a href="/admin.html" class="neo-btn bg-[#8bd3dd] hover:bg-[#72c5d0] text-black font-bold px-4 py-2 text-xs sm:text-sm flex items-center gap-1.5">
-                    <i class="fa-solid fa-sliders"></i> Admin Panel
-                </a>
+            <div class="flex items-center gap-2">
+                <span class="bg-[#8bd3dd] border-2 border-black px-3 py-1.5 rounded-lg text-xs font-extrabold shadow-[2px_2px_0px_#000] flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-emerald-600 rounded-full animate-ping"></span> Online 24 Jam
+                </span>
             </div>
         </div>
     </nav>
 
-    <!-- Header -->
+    <!-- Header Banner dengan Logo Game Mobile Legends Terbaru -->
     <header class="max-w-5xl mx-auto px-4 mt-6">
         <div class="neo-card bg-[#faae2b] p-6 sm:p-8 relative overflow-hidden">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
                 <div class="flex items-center gap-4">
-                    <img src="https://cdn-icons-png.flaticon.com/512/8002/8002111.png" alt="MLBB" class="w-20 h-20 sm:w-24 sm:h-24 bg-white p-2 rounded-2xl border-[3px] border-black shadow-[4px_4px_0px_#000]">
+                    <img src="/logo.png"
+                         onerror="this.onerror=null; this.src='https://unavatar.io/x/MobileLegendsOL?fallback=https://img.utdstc.com/icon/78d/66f/78d66ff1ab122337fd6d2593774881e6f3166e0002c8856565107b7901f2b300:200';"
+                         referrerpolicy="no-referrer"
+                         alt="Mobile Legends Terbaru"
+                         class="w-20 h-20 sm:w-24 sm:h-24 object-cover bg-white rounded-2xl border-[3px] border-black shadow-[4px_4px_0px_#000]">
                     <div>
                         <div class="flex flex-wrap gap-2 mb-1.5">
                             <span class="bg-white border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-mono-saweria font-bold shadow-[2px_2px_0px_#000]">
@@ -269,7 +275,7 @@
         let selectedPaymentMethod = null;
         let checkStatusInterval = null;
 
-        // Daftar Produk Cadangan
+        // Daftar Produk Cadangan jika Firebase belum diatur
         const fallbackProducts = [
             { id: 1, name: 'Weekly Diamond Pass', price: 27500, sku: 'WDP', category: 'special' },
             { id: 2, name: '5 Diamonds', price: 1500, sku: 'ML5', category: 'diamond' },
@@ -325,9 +331,9 @@
             }
         }
 
+        // Ambil langsung pricelist dari Firebase melalui /api/products
         async function fetchProductsFromAdmin() {
             try {
-                // Ambil langsung data terbaru dari Firebase melalui /api/products
                 const res = await fetch('/api/products?t=' + Date.now(), { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
@@ -373,7 +379,6 @@
                 return;
             }
 
-            // Validasi Nomor WhatsApp Indonesia (Wajib awalan 08 atau 628)
             if (!/^(08|628)[0-9]{7,13}$/.test(whatsapp)) {
                 Swal.fire({
                     icon: 'error',
