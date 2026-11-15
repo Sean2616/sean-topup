@@ -17,37 +17,15 @@
             color: #111827;
         }
         .font-mono-saweria { font-family: 'Space Mono', monospace; }
-        .neo-card {
-            background-color: #ffffff;
-            border: 3px solid #000000;
-            box-shadow: 6px 6px 0px #000000;
-            border-radius: 14px;
-        }
-        .neo-btn {
-            border: 2.5px solid #000000;
-            box-shadow: 3px 3px 0px #000000;
-            border-radius: 10px;
-            transition: all 0.1s ease;
-        }
-        .neo-btn:hover {
-            transform: translate(1.5px, 1.5px);
-            box-shadow: 1.5px 1.5px 0px #000000;
-        }
-        .neo-input {
-            background-color: #ffffff;
-            border: 2px solid #000000;
-            border-radius: 8px;
-        }
-        .neo-input:focus {
-            outline: none;
-            background-color: #fffbeb;
-            box-shadow: 3px 3px 0px #000000;
-        }
+        .neo-card { background-color: #ffffff; border: 3px solid #000000; box-shadow: 6px 6px 0px #000000; border-radius: 14px; }
+        .neo-btn { border: 2.5px solid #000000; box-shadow: 3px 3px 0px #000000; border-radius: 10px; transition: all 0.1s ease; }
+        .neo-btn:hover { transform: translate(1.5px, 1.5px); box-shadow: 1.5px 1.5px 0px #000000; }
+        .neo-input { background-color: #ffffff; border: 2px solid #000000; border-radius: 8px; }
+        .neo-input:focus { outline: none; background-color: #fffbeb; box-shadow: 3px 3px 0px #000000; }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
-    <!-- Navbar -->
     <nav class="max-w-6xl mx-auto px-4 pt-5">
         <div class="neo-card bg-[#fff9eb] px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -60,9 +38,7 @@
                 <a href="/" class="neo-btn bg-white px-3 py-1.5 text-xs font-bold">
                     <i class="fa-solid fa-store mr-1"></i> Lihat Toko
                 </a>
-                <button id="btnLogout" onclick="logout()" class="hidden neo-btn bg-[#f582ae] text-black px-3 py-1.5 text-xs font-bold">
-                    Keluar
-                </button>
+                <button id="btnLogout" onclick="logout()" class="hidden neo-btn bg-[#f582ae] text-black px-3 py-1.5 text-xs font-bold">Keluar</button>
             </div>
         </div>
     </nav>
@@ -71,9 +47,7 @@
     <div id="loginSection" class="max-w-md mx-auto mt-16 px-4">
         <div class="neo-card bg-[#fff9eb] p-6">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-[#faae2b] border-2 border-black shadow-[3px_3px_0px_#000] rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
-                    🔑
-                </div>
+                <div class="w-16 h-16 bg-[#faae2b] border-2 border-black shadow-[3px_3px_0px_#000] rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">🔑</div>
                 <h1 class="text-xl font-extrabold">Login Admin Sean Top Up</h1>
                 <p class="text-xs text-gray-600 mt-1 font-medium">Masukkan password untuk mengatur harga & memantau transaksi</p>
             </div>
@@ -82,9 +56,7 @@
                     <label class="block text-xs font-bold uppercase mb-1">Password Admin :</label>
                     <input type="password" id="adminPassInput" placeholder="Default: sean123" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
                 </div>
-                <button onclick="loginAdmin()" class="neo-btn w-full bg-[#faae2b] text-black font-extrabold py-3 text-sm">
-                    MASUK DASHBOARD
-                </button>
+                <button onclick="loginAdmin()" class="neo-btn w-full bg-[#faae2b] text-black font-extrabold py-3 text-sm">MASUK DASHBOARD</button>
             </div>
         </div>
     </div>
@@ -92,7 +64,6 @@
     <!-- DASHBOARD ADMIN -->
     <div id="dashboardSection" class="hidden max-w-6xl mx-auto px-4 mt-8 space-y-8">
         
-        <!-- Tambah Produk -->
         <div class="neo-card bg-[#fff9eb] p-6">
             <h2 class="text-base font-extrabold mb-4 inline-block bg-[#8bd3dd] border-2 border-black px-3 py-1 rounded-lg shadow-[2px_2px_0px_#000]">
                 ➕ TAMBAH PRODUK BARU
@@ -105,23 +76,24 @@
                     <option value="diamond">Diamond Instan</option>
                     <option value="special">Spesial Pass</option>
                 </select>
-                <button onclick="addProduct()" class="neo-btn bg-[#faae2b] text-black font-extrabold px-4 py-2 text-sm">
-                    + Tambah
-                </button>
+                <button onclick="addProduct()" class="neo-btn bg-[#faae2b] text-black font-extrabold px-4 py-2 text-sm">+ Tambah</button>
             </div>
         </div>
 
-        <!-- Tabel Atur Harga -->
         <div class="neo-card p-6">
             <div class="flex flex-wrap justify-between items-center gap-4 mb-5">
                 <div>
                     <h2 class="text-base font-extrabold inline-block bg-[#faae2b] border-2 border-black px-3 py-1 rounded-lg shadow-[2px_2px_0px_#000]">
                         🏷️ ATUR HARGA & KODE SKU
                     </h2>
+                    <p class="text-xs text-gray-600 mt-1 font-medium">Daftar harga Anda otomatis ter-backup di browser ini agar tidak pernah hilang.</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <button onclick="adjustAllPrices(500)" class="neo-btn bg-white text-xs font-bold px-3 py-2">+ Rp 500 Semua</button>
                     <button onclick="adjustAllPrices(-500)" class="neo-btn bg-white text-xs font-bold px-3 py-2">- Rp 500 Semua</button>
+                    <button onclick="copyPermanentCode()" class="neo-btn bg-[#a78bfa] text-black font-extrabold text-xs px-3 py-2">
+                        🔒 Salin Kode Permanen
+                    </button>
                     <button onclick="saveAllProducts()" class="neo-btn bg-[#8bd3dd] text-black font-extrabold text-xs px-4 py-2">
                         💾 SIMPAN SEMUA PERUBAHAN
                     </button>
@@ -144,15 +116,12 @@
             </div>
         </div>
 
-        <!-- Pantau Pesanan -->
         <div class="neo-card bg-[#fff9eb] p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-base font-extrabold inline-block bg-[#f582ae] border-2 border-black px-3 py-1 rounded-lg shadow-[2px_2px_0px_#000]">
                     🧾 PANTAU PESANAN MASUK
                 </h2>
-                <button onclick="loadOrders()" class="neo-btn bg-white text-xs font-bold px-3 py-2">
-                    🔄 Refresh
-                </button>
+                <button onclick="loadOrders()" class="neo-btn bg-white text-xs font-bold px-3 py-2">🔄 Refresh</button>
             </div>
 
             <div class="overflow-x-auto bg-white border-2 border-black rounded-xl p-2">
@@ -178,35 +147,68 @@
         let adminPassword = '';
         let productsList = [];
 
+        const defaultBackup = [
+            { id: 1, name: 'Weekly Diamond Pass', price: 27500, sku: 'WDP', category: 'special', badge: '' },
+            { id: 2, name: 'Twilight Pass', price: 145000, sku: 'TWILIGHT', category: 'special', badge: '' },
+            { id: 3, name: '5 Diamonds', price: 1500, sku: 'ML5', category: 'diamond', badge: '' },
+            { id: 4, name: '86 Diamonds', price: 20500, sku: 'ML86', category: 'diamond', badge: '' },
+            { id: 5, name: '172 Diamonds', price: 41000, sku: 'ML172', category: 'diamond', badge: '' },
+            { id: 6, name: '257 Diamonds', price: 61500, sku: 'ML257', category: 'diamond', badge: '' },
+            { id: 7, name: '706 Diamonds', price: 165000, sku: 'ML706', category: 'diamond', badge: '' },
+            { id: 8, name: '2195 Diamonds', price: 495000, sku: 'ML2195', category: 'diamond', badge: '' }
+        ];
+
         async function loginAdmin() {
             const pass = document.getElementById('adminPassInput').value;
             if (!pass) return;
 
-            const res = await fetch('/api/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: pass, action: 'login' })
-            });
-            const data = await res.json();
+            try {
+                const res = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pass, action: 'login' })
+                });
+                const data = await res.json();
 
-            if (data.success) {
-                adminPassword = pass;
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('dashboardSection').classList.remove('hidden');
-                document.getElementById('btnLogout').classList.remove('hidden');
-                loadProducts();
-                loadOrders();
-            } else {
-                Swal.fire({ icon: 'error', title: 'Password Salah!', text: data.message, confirmButtonColor: '#faae2b' });
+                if (data.success) {
+                    adminPassword = pass;
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('dashboardSection').classList.remove('hidden');
+                    document.getElementById('btnLogout').classList.remove('hidden');
+                    loadProducts();
+                    loadOrders();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Password Salah!', text: data.message, confirmButtonColor: '#faae2b' });
+                }
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'File api/products.js Belum Ada!', text: 'Pastikan Anda sudah membuat file api/products.js di GitHub.', confirmButtonColor: '#faae2b' });
             }
         }
 
         function logout() { location.reload(); }
 
         async function loadProducts() {
-            const res = await fetch('/api/products');
-            const data = await res.json();
-            productsList = data.products || [];
+            // Prioritaskan backup lokal milik Admin jika ada, agar saat Vercel restart harga buatan Admin langsung dipulihkan!
+            const savedLocal = localStorage.getItem('sean_saved_products');
+            if (savedLocal) {
+                productsList = JSON.parse(savedLocal);
+                renderProducts();
+                // Otomatis sinkronkan kembali ke server Vercel
+                fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: adminPassword, products: productsList })
+                }).catch(() => {});
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                productsList = data.products || defaultBackup;
+            } catch (e) {
+                productsList = defaultBackup;
+            }
             renderProducts();
         }
 
@@ -242,10 +244,14 @@
             });
         }
 
-        function updateField(index, field, value) { productsList[index][field] = value; }
+        function updateField(index, field, value) {
+            productsList[index][field] = value;
+            localStorage.setItem('sean_saved_products', JSON.stringify(productsList));
+        }
 
         function adjustAllPrices(amount) {
             productsList = productsList.map(p => ({ ...p, price: Math.max(500, parseInt(p.price) + amount) }));
+            localStorage.setItem('sean_saved_products', JSON.stringify(productsList));
             renderProducts();
         }
 
@@ -260,16 +266,19 @@
             document.getElementById('newName').value = '';
             document.getElementById('newPrice').value = '';
             document.getElementById('newSku').value = '';
+            localStorage.setItem('sean_saved_products', JSON.stringify(productsList));
             renderProducts();
             saveAllProducts();
         }
 
         function deleteProduct(index) {
             productsList.splice(index, 1);
+            localStorage.setItem('sean_saved_products', JSON.stringify(productsList));
             renderProducts();
         }
 
         async function saveAllProducts() {
+            localStorage.setItem('sean_saved_products', JSON.stringify(productsList));
             const res = await fetch('/api/products', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -277,6 +286,17 @@
             });
             const data = await res.json();
             Swal.fire({ icon: data.success ? 'success' : 'error', title: data.message, timer: 1500, confirmButtonColor: '#faae2b' });
+        }
+
+        function copyPermanentCode() {
+            const jsonString = JSON.stringify(productsList, null, 4);
+            navigator.clipboard.writeText(`const defaultProducts = ${jsonString};`);
+            Swal.fire({
+                icon: 'success',
+                title: 'Kode Pricelist Disalin!',
+                html: 'Jika ingin daftar harga ini tertanam permanen di GitHub, cukup <b>Paste</b> menggantikan bagian <code>const defaultProducts = [...];</code> di dalam file <b>api/products.js</b> Anda.',
+                confirmButtonColor: '#faae2b'
+            });
         }
 
         async function loadOrders() {
