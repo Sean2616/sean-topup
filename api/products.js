@@ -1,9 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-
-const TMP_FILE = path.join('/tmp', 'sean_products.json');
-
-// Daftar Produk & Harga Awal (Weekly Diamond Pass & Diamond)
+// Daftar Produk Awal jika Firebase masih kosong
 const defaultProducts = [
     { id: 1, name: 'Weekly Diamond Pass', price: 27500, sku: 'WDP', category: 'special', badge: 'Paling Laris!' },
     { id: 2, name: '5 Diamonds', price: 1500, sku: 'ML5', category: 'diamond', badge: '' },
@@ -14,34 +9,46 @@ const defaultProducts = [
     { id: 7, name: '2195 Diamonds', price: 495000, sku: 'ML2195', category: 'diamond', badge: '' }
 ];
 
-function getProducts() {
-    if (global.customProducts) return global.customProducts;
-    try {
-        if (fs.existsSync(TMP_FILE)) {
-            const data = JSON.parse(fs.readFileSync(TMP_FILE, 'utf8'));
-            global.customProducts = data;
-            return data;
-        }
-    } catch (e) {}
-    global.customProducts = defaultProducts;
-    return defaultProducts;
-}
-
-function saveProducts(products) {
-    global.customProducts = products;
-    try {
-        fs.writeFileSync(TMP_FILE, JSON.stringify(products, null, 2), 'utf8');
-    } catch (e) {}
-}
-
 export default async function handler(req, res) {
     const adminPassword = process.env.ADMIN_PASSWORD || 'sean123';
+    // Ambil URL Firebase dan hapus garis miring di ujung jika ada
+    const firebaseUrl = process.env.FIREBASE_DB_URL
+        ? process.env.FIREBASE_DB_URL.replace(/\/$/, '')
+        : null;
 
+    // 1. GET: Diambil oleh Halaman Pembeli (index.html) & Halaman Admin
     if (req.method === 'GET') {
-        const products = getProducts();
-        return res.status(200).json({ success: true, products });
+        if (!firebaseUrl) {
+            return res.status(200).json({
+                success: true,
+                products: defaultProducts,
+                warning: 'FIREBASE_DB_URL belum dipasang di Vercel'
+            });
+        }
+
+        try {
+            const response = await fetch(`${firebaseUrl}/products.json`, { cache: 'no-store' });
+            const data = await response.json();
+
+            // Jika di Firebase sudah ada pricelist, tampilkan ke pembeli!
+            if (data && Array.isArray(data) && data.length > 0) {
+                return res.status(200).json({ success: true, products: data });
+            }
+
+            // Jika Firebase masih kosong, isi otomatis dengan defaultProducts
+            await fetch(`${firebaseUrl}/products.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(defaultProducts)
+            });
+
+            return res.status(200).json({ success: true, products: defaultProducts });
+        } catch (error) {
+            return res.status(200).json({ success: true, products: defaultProducts });
+        }
     }
 
+    // 2. POST: Menyimpan Perubahan Harga dari Admin ke Firebase
     if (req.method === 'POST') {
         const { password, action, products } = req.body;
 
@@ -53,18 +60,36 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, message: 'Login berhasil' });
         }
 
-        if (action === 'reset') {
-            saveProducts(defaultProducts);
-            return res.status(200).json({ success: true, products: defaultProducts, message: 'Harga dikembalikan ke awal!' });
+        if (!firebaseUrl) {
+            return res.status(500).json({
+                success: false,
+                message: 'FIREBASE_DB_URL belum dipasang di Environment Variables Vercel!'
+            });
         }
 
         if (Array.isArray(products)) {
-            saveProducts(products);
-            return res.status(200).json({
-                success: true,
-                products,
-                message: 'Harga & Produk berhasil diperbarui!'
-            });
+            try {
+                const saveRes = await fetch(`${firebaseUrl}/products.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(products)
+                });
+
+                if (!saveRes.ok) {
+                    throw new Error('Pastikan Rules Firebase sudah diatur ke true');
+                }
+
+                return res.status(200).json({
+                    success: true,
+                    products,
+                    message: 'Pricelist berhasil disimpan permanen ke Firebase!'
+                });
+            } catch (error) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Gagal menyimpan ke Firebase: ' + error.message
+                });
+            }
         }
 
         return res.status(400).json({ success: false, message: 'Data produk tidak valid' });

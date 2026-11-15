@@ -187,22 +187,10 @@
         function logout() { location.reload(); }
 
         async function loadProducts() {
-            const savedLocal = localStorage.getItem('sean_saved_products');
-            if (savedLocal) {
-                productsList = JSON.parse(savedLocal);
-                renderProducts();
-                fetch('/api/products', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: adminPassword, products: productsList })
-                }).catch(() => {});
-                return;
-            }
-
             try {
-                const res = await fetch('/api/products');
+                const res = await fetch('/api/products?t=' + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
-                productsList = data.products || defaultBackup;
+                productsList = (data.products && data.products.length > 0) ? data.products : defaultBackup;
             } catch (e) {
                 productsList = defaultBackup;
             }
