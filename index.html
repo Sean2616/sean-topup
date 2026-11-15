@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sean Top Up - Top Up MLBB Ala Saweria!</title>
+    <title>Sean Top Up - Top Up MLBB Region Indonesia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -115,11 +115,16 @@
                 <div class="flex items-center gap-4">
                     <img src="https://cdn-icons-png.flaticon.com/512/8002/8002111.png" alt="MLBB" class="w-20 h-20 sm:w-24 sm:h-24 bg-white p-2 rounded-2xl border-[3px] border-black shadow-[4px_4px_0px_#000]">
                     <div>
-                        <div class="inline-block bg-white border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-mono-saweria font-bold mb-1.5 shadow-[2px_2px_0px_#000]">
-                            ⚡ OTOMATIS 24 JAM
+                        <div class="flex flex-wrap gap-2 mb-1.5">
+                            <span class="bg-white border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-mono-saweria font-bold shadow-[2px_2px_0px_#000]">
+                                ⚡ OTOMATIS 24 JAM
+                            </span>
+                            <span class="bg-[#f582ae] border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-mono-saweria font-bold shadow-[2px_2px_0px_#000]">
+                                🇮🇩 REGION INDONESIA
+                            </span>
                         </div>
                         <h1 class="text-2xl sm:text-4xl font-extrabold text-black leading-tight">Mobile Legends: Bang Bang</h1>
-                        <p class="text-sm font-medium text-black/80 mt-1">Isi Diamond & Weekly Pass langsung masuk dalam hitungan detik!</p>
+                        <p class="text-sm font-medium text-black/80 mt-1">Isi Diamond & Weekly Diamond Pass khusus akun Region Indonesia!</p>
                     </div>
                 </div>
             </div>
@@ -138,10 +143,10 @@
                     </div>
                     <ol class="list-decimal list-inside text-sm text-gray-800 space-y-3 font-medium">
                         <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
-                            Ketik <b>User ID</b> & <b>Zone ID</b> akun MLBB kamu.
+                            Ketik <b>User ID</b> & <b>Zone ID</b> akun MLBB (Khusus Region Indonesia 🇮🇩).
                         </li>
                         <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
-                            Pilih paket <b>Diamond / Pass</b> yang kamu mau.
+                            Pilih <b>Weekly Diamond Pass</b> atau <b>Diamond</b>.
                         </li>
                         <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
                             Pilih metode bayar <b>QRIS GoPay Merchant</b>.
@@ -150,6 +155,9 @@
                             Masukkan nomor <b>WhatsApp</b> lalu klik <b>Beli Sekarang!</b>
                         </li>
                     </ol>
+                    <div class="mt-5 p-3 bg-[#faae2b]/30 border-2 border-black rounded-xl text-xs font-bold">
+                        ⚠️ <b>Perhatian:</b> Produk ini hanya berlaku untuk akun MLBB <b>Server/Region Indonesia</b>. Akun server luar (PH/MY/RU/BR) tidak dapat diproses.
+                    </div>
                 </div>
             </div>
 
@@ -158,9 +166,12 @@
                 
                 <!-- STEP 1 -->
                 <div class="neo-card p-6">
-                    <div class="flex items-center gap-3 mb-5">
-                        <div class="bg-[#faae2b] border-2 border-black font-mono-saweria font-bold rounded-lg w-9 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-lg">1</div>
-                        <h3 class="text-lg font-extrabold">Masukkan Data Akun MLBB</h3>
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-[#faae2b] border-2 border-black font-mono-saweria font-bold rounded-lg w-9 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-lg">1</div>
+                            <h3 class="text-lg font-extrabold">Masukkan Data Akun MLBB</h3>
+                        </div>
+                        <span class="text-xs font-bold bg-[#fff9eb] border-2 border-black px-2.5 py-1 rounded-lg">🇮🇩 ID Only</span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -168,10 +179,13 @@
                             <input type="number" id="userId" placeholder="Contoh: 12345678" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">Zone ID :</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">Zone ID (4-5 Digit) :</label>
                             <input type="number" id="zoneId" placeholder="Contoh: 1234" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
                         </div>
                     </div>
+                    <p class="text-xs text-red-600 mt-3 font-bold">
+                        *Pastikan akun MLBB kamu berstatus Region Indonesia 🇮🇩.
+                    </p>
                 </div>
 
                 <!-- STEP 2 -->
@@ -181,13 +195,15 @@
                         <h3 class="text-lg font-extrabold">Pilih Nominal Top Up</h3>
                     </div>
 
+                    <!-- Kategori: Weekly Diamond Pass -->
                     <div id="specialSection" class="mb-6 hidden">
                         <div class="inline-block bg-[#f582ae] border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-extrabold mb-3 shadow-[2px_2px_0px_#000]">
-                            ⭐ SPESIAL PASS
+                            ⭐ WEEKLY DIAMOND PASS
                         </div>
                         <div id="specialGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
                     </div>
 
+                    <!-- Kategori: Top Up Diamond Instan -->
                     <div>
                         <div class="inline-block bg-[#faae2b] border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-extrabold mb-3 shadow-[2px_2px_0px_#000]">
                             💎 TOP UP DIAMOND INSTAN
@@ -226,7 +242,7 @@
                         <h3 class="text-lg font-extrabold">Konfirmasi & Bayar</h3>
                     </div>
                     <div class="mb-5">
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">Nomor WhatsApp Aktif :</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">Nomor WhatsApp Indonesia (08xx) :</label>
                         <input type="number" id="whatsapp" placeholder="Contoh: 081234567890" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
                     </div>
                     <button id="btnSubmit" onclick="processOrder()" class="neo-btn w-full bg-[#faae2b] hover:bg-[#f5a00d] text-black font-extrabold py-4 text-base flex items-center justify-center gap-2">
@@ -242,7 +258,7 @@
     <footer class="max-w-5xl mx-auto px-4 mt-12">
         <div class="neo-card bg-white p-5 text-center font-mono-saweria text-xs">
             <p class="font-bold">dibuat dengan ☕ oleh <b>Sean Top Up</b> &copy; 2026</p>
-            <p class="text-gray-600 mt-1">Transaksi Otomatis 24 Jam — Powered by GoPay Merchant & Digiflazz</p>
+            <p class="text-gray-600 mt-1">Layanan Top Up Khusus Region Indonesia 🇮🇩 — Powered by GoPay Merchant & Digiflazz</p>
         </div>
     </footer>
 
@@ -253,16 +269,15 @@
         let selectedPaymentMethod = null;
         let checkStatusInterval = null;
 
-        // Daftar Produk Cadangan Otomatis (Muncul jika /api/products belum aktif)
+        // Daftar Produk Cadangan
         const fallbackProducts = [
             { id: 1, name: 'Weekly Diamond Pass', price: 27500, sku: 'WDP', category: 'special' },
-            { id: 2, name: 'Twilight Pass', price: 145000, sku: 'TWILIGHT', category: 'special' },
-            { id: 3, name: '5 Diamonds', price: 1500, sku: 'ML5', category: 'diamond' },
-            { id: 4, name: '86 Diamonds', price: 20500, sku: 'ML86', category: 'diamond' },
-            { id: 5, name: '172 Diamonds', price: 41000, sku: 'ML172', category: 'diamond' },
-            { id: 6, name: '257 Diamonds', price: 61500, sku: 'ML257', category: 'diamond' },
-            { id: 7, name: '706 Diamonds', price: 165000, sku: 'ML706', category: 'diamond' },
-            { id: 8, name: '2195 Diamonds', price: 495000, sku: 'ML2195', category: 'diamond' }
+            { id: 2, name: '5 Diamonds', price: 1500, sku: 'ML5', category: 'diamond' },
+            { id: 3, name: '86 Diamonds', price: 20500, sku: 'ML86', category: 'diamond' },
+            { id: 4, name: '172 Diamonds', price: 41000, sku: 'ML172', category: 'diamond' },
+            { id: 5, name: '257 Diamonds', price: 61500, sku: 'ML257', category: 'diamond' },
+            { id: 6, name: '706 Diamonds', price: 165000, sku: 'ML706', category: 'diamond' },
+            { id: 7, name: '2195 Diamonds', price: 495000, sku: 'ML2195', category: 'diamond' }
         ];
 
         function formatRupiah(angka) {
@@ -311,7 +326,6 @@
         }
 
         async function fetchProductsFromAdmin() {
-            // 1. Tampilkan cadangan/simpanan lokal dulu agar langsung muncul tanpa menunggu
             const localSaved = localStorage.getItem('sean_saved_products');
             if (localSaved) {
                 try { renderProductCards(JSON.parse(localSaved)); } catch (e) { renderProductCards(fallbackProducts); }
@@ -319,7 +333,6 @@
                 renderProductCards(fallbackProducts);
             }
 
-            // 2. Ambil data terbaru dari Server (/api/products)
             try {
                 const res = await fetch('/api/products');
                 if (res.ok) {
@@ -346,7 +359,7 @@
 
         function selectPayment(element, methodName) {
             if(selectedPrice === 0) {
-                Swal.fire({ icon: 'warning', title: 'Pilih Nominal Dulu!', text: 'Silakan klik salah satu paket diamond di nomor 2.', background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
+                Swal.fire({ icon: 'warning', title: 'Pilih Nominal Dulu!', text: 'Silakan klik salah satu paket di nomor 2.', background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
                 return;
             }
             document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('item-selected'));
@@ -355,16 +368,27 @@
         }
 
         async function processOrder() {
-            const userId = document.getElementById('userId').value;
-            const zoneId = document.getElementById('zoneId').value;
-            const whatsapp = document.getElementById('whatsapp').value;
+            const userId = document.getElementById('userId').value.trim();
+            const zoneId = document.getElementById('zoneId').value.trim();
+            const whatsapp = document.getElementById('whatsapp').value.trim();
 
             if (!userId || !zoneId || !selectedItem || !selectedPaymentMethod || !whatsapp) {
                 Swal.fire({ icon: 'error', title: 'Belum Lengkap Nih!', text: 'Pastikan langkah 1 sampai 4 sudah diisi semua ya!', background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
                 return;
             }
 
-            Swal.fire({ title: 'Mengecek ID Game...', text: 'Tunggu sebentar ya!', allowOutsideClick: false, background: '#fff9eb', color: '#000', didOpen: () => { Swal.showLoading(); } });
+            // Validasi Nomor WhatsApp Indonesia (Wajib awalan 08 atau 628)
+            if (!/^(08|628)[0-9]{7,13}$/.test(whatsapp)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Nomor WA Tidak Valid!',
+                    text: 'Harap gunakan nomor WhatsApp Indonesia (diawali 08 atau 628).',
+                    background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b'
+                });
+                return;
+            }
+
+            Swal.fire({ title: 'Mengecek ID & Region...', text: 'Memastikan akun Region Indonesia 🇮🇩', allowOutsideClick: false, background: '#fff9eb', color: '#000', didOpen: () => { Swal.showLoading(); } });
 
             try {
                 const checkRes = await fetch('/api/check-id', {
@@ -381,6 +405,7 @@
                         <div class="text-left text-sm space-y-2 bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_#000] mt-2 font-medium text-black">
                             <div class="flex justify-between"><span class="text-gray-600">Nickname:</span> <span class="font-extrabold bg-[#8bd3dd] px-2 rounded border border-black">${checkData.nickname}</span></div>
                             <div class="flex justify-between"><span class="text-gray-600">ID MLBB:</span> <span class="font-bold">${userId} (${zoneId})</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">Region:</span> <span class="font-extrabold">${checkData.region || 'Indonesia 🇮🇩'}</span></div>
                             <div class="flex justify-between"><span class="text-gray-600">Item:</span> <span class="font-extrabold">${selectedItem}</span></div>
                             <div class="flex justify-between"><span class="text-gray-600">Metode:</span> <span class="font-bold">${selectedPaymentMethod}</span></div>
                             <hr class="border-black border-dashed my-2">
@@ -439,7 +464,7 @@
                     });
                 }
             } catch (error) {
-                Swal.fire({ icon: 'error', title: 'Waduh, Gagal!', text: error.message || 'Terjadi kesalahan sistem', background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
+                Swal.fire({ icon: 'error', title: 'Tidak Dapat Diproses!', text: error.message || 'Terjadi kesalahan sistem', background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
             }
         }
 

@@ -69,12 +69,12 @@
                 ➕ TAMBAH PRODUK BARU
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-                <input type="text" id="newName" placeholder="Nama (344 Diamonds)" class="neo-input px-3 py-2 text-sm font-bold">
+                <input type="text" id="newName" placeholder="Nama (Weekly Pass / 344 DM)" class="neo-input px-3 py-2 text-sm font-bold">
                 <input type="number" id="newPrice" placeholder="Harga (82000)" class="neo-input px-3 py-2 text-sm font-bold">
                 <input type="text" id="newSku" placeholder="SKU Digiflazz (ML344)" class="neo-input px-3 py-2 text-sm font-mono-saweria uppercase">
                 <select id="newCategory" class="neo-input px-3 py-2 text-sm font-bold">
                     <option value="diamond">Diamond Instan</option>
-                    <option value="special">Spesial Pass</option>
+                    <option value="special">Weekly Diamond Pass</option>
                 </select>
                 <button onclick="addProduct()" class="neo-btn bg-[#faae2b] text-black font-extrabold px-4 py-2 text-sm">+ Tambah</button>
             </div>
@@ -149,13 +149,12 @@
 
         const defaultBackup = [
             { id: 1, name: 'Weekly Diamond Pass', price: 27500, sku: 'WDP', category: 'special', badge: '' },
-            { id: 2, name: 'Twilight Pass', price: 145000, sku: 'TWILIGHT', category: 'special', badge: '' },
-            { id: 3, name: '5 Diamonds', price: 1500, sku: 'ML5', category: 'diamond', badge: '' },
-            { id: 4, name: '86 Diamonds', price: 20500, sku: 'ML86', category: 'diamond', badge: '' },
-            { id: 5, name: '172 Diamonds', price: 41000, sku: 'ML172', category: 'diamond', badge: '' },
-            { id: 6, name: '257 Diamonds', price: 61500, sku: 'ML257', category: 'diamond', badge: '' },
-            { id: 7, name: '706 Diamonds', price: 165000, sku: 'ML706', category: 'diamond', badge: '' },
-            { id: 8, name: '2195 Diamonds', price: 495000, sku: 'ML2195', category: 'diamond', badge: '' }
+            { id: 2, name: '5 Diamonds', price: 1500, sku: 'ML5', category: 'diamond', badge: '' },
+            { id: 3, name: '86 Diamonds', price: 20500, sku: 'ML86', category: 'diamond', badge: '' },
+            { id: 4, name: '172 Diamonds', price: 41000, sku: 'ML172', category: 'diamond', badge: '' },
+            { id: 5, name: '257 Diamonds', price: 61500, sku: 'ML257', category: 'diamond', badge: '' },
+            { id: 6, name: '706 Diamonds', price: 165000, sku: 'ML706', category: 'diamond', badge: '' },
+            { id: 7, name: '2195 Diamonds', price: 495000, sku: 'ML2195', category: 'diamond', badge: '' }
         ];
 
         async function loginAdmin() {
@@ -188,12 +187,10 @@
         function logout() { location.reload(); }
 
         async function loadProducts() {
-            // Prioritaskan backup lokal milik Admin jika ada, agar saat Vercel restart harga buatan Admin langsung dipulihkan!
             const savedLocal = localStorage.getItem('sean_saved_products');
             if (savedLocal) {
                 productsList = JSON.parse(savedLocal);
                 renderProducts();
-                // Otomatis sinkronkan kembali ke server Vercel
                 fetch('/api/products', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -224,8 +221,8 @@
                         </td>
                         <td class="py-2.5 px-2">
                             <select onchange="updateField(${index}, 'category', this.value)" class="neo-input px-2 py-1.5 text-xs font-bold">
-                                <option value="diamond" ${p.category === 'diamond' ? 'selected' : ''}>Diamond</option>
-                                <option value="special" ${p.category === 'special' ? 'selected' : ''}>Spesial Pass</option>
+                                <option value="diamond" ${p.category === 'diamond' ? 'selected' : ''}>Diamond Instan</option>
+                                <option value="special" ${p.category === 'special' ? 'selected' : ''}>Weekly Diamond Pass</option>
                             </select>
                         </td>
                         <td class="py-2.5 px-2">
