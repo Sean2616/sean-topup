@@ -117,6 +117,19 @@
         </div>
 
         <div class="neo-card bg-[#fff9eb] p-6">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-3">
+                <div>
+                    <h2 class="text-base font-extrabold inline-block bg-[#a78bfa] border-2 border-black px-3 py-1 rounded-lg shadow-[2px_2px_0px_#000]">
+                        🔌 TES KONEKSI DIGIFLAZZ
+                    </h2>
+                    <p class="text-xs text-gray-600 mt-1 font-medium">Memeriksa kredensial di Vercel, koneksi ke Digiflazz, dan apakah SKU produkmu ada di katalog Digiflazz. Tes ini hanya membaca katalog, tidak membuat transaksi dan tidak memotong saldo. Saldo tetap dicek di dashboard Digiflazz.</p>
+                </div>
+                <button id="digiTestBtn" onclick="testDigiflazz()" class="neo-btn bg-[#a78bfa] text-black font-extrabold text-xs px-4 py-2">▶ Jalankan Tes</button>
+            </div>
+            <div id="digiTestResult" class="text-sm font-medium text-gray-600">Belum dites.</div>
+        </div>
+
+        <div class="neo-card bg-[#fff9eb] p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-base font-extrabold inline-block bg-[#f582ae] border-2 border-black px-3 py-1 rounded-lg shadow-[2px_2px_0px_#000]">
                     🧾 PANTAU PESANAN MASUK
@@ -133,12 +146,14 @@
                             <th class="py-3 px-2">Item & SKU</th>
                             <th class="py-3 px-2">Total Unik</th>
                             <th class="py-3 px-2">Status</th>
+                            <th class="py-3 px-2">Digiflazz</th>
                             <th class="py-3 px-2 text-center">Aksi Manual</th>
                         </tr>
                     </thead>
                     <tbody id="orderTableBody"></tbody>
                 </table>
             </div>
+            <p class="text-xs text-gray-600 mt-3 font-medium">Pesanan yang gagal terkirim bisa dikirim ulang setelah penyebabnya diperbaiki (kredensial, SKU, atau saldo). Kirim ulang memakai invoice yang sama; kalau Digiflazz sudah mencatat invoice itu sebagai gagal, kirim ulang tidak membuat transaksi baru — top up manual dari dashboard Digiflazz.</p>
         </div>
 
     </div>
@@ -284,13 +299,37 @@
             });
         }
 
+        function escHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        // Hasil pengiriman Digiflazz: bentuk baru (v4) atau bentuk mentah lama.
+        function digiOutcome(o) {
+            const d = o.digiflazzResult;
+            if (o.deliveryStatus === 'SENT') return 'SENT';
+            if (o.deliveryStatus === 'FAILED') return 'FAILED';
+            if (d && d.success === true) return 'SENT';
+            if (d && d.success === false) return 'FAILED';
+            if (d && d.data && (d.data.status === 'Sukses' || d.data.status === 'Pending')) return 'SENT';
+            if (d && d.data && d.data.status === 'Gagal') return 'FAILED';
+            return null;
+        }
+
+        function digiMessage(o) {
+            if (o.digiflazzMessage) return o.digiflazzMessage;
+            const d = o.digiflazzResult;
+            if (d && d.message) return d.message;
+            if (d && d.data && d.data.message) return d.data.message;
+            return '';
+        }
+
         async function loadOrders() {
             const res = await fetch(`/api/order?action=list&password=${encodeURIComponent(adminPassword)}`);
             const data = await res.json();
             const tbody = document.getElementById('orderTableBody');
 
             if (!data.orders || data.orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-gray-500 font-bold">Belum ada pesanan masuk</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-gray-500 font-bold">Belum ada pesanan masuk</td></tr>';
                 return;
             }
 
@@ -300,9 +339,18 @@
                     ? '<span class="bg-[#8bd3dd] border border-black px-2 py-0.5 rounded text-xs font-extrabold">LUNAS</span>'
                     : '<span class="bg-[#faae2b] border border-black px-2 py-0.5 rounded text-xs font-extrabold">PENDING</span>';
 
+                const outcome = digiOutcome(o);
+                const digiCell = outcome === null
+                    ? '<span class="text-xs font-bold text-gray-400">—</span>'
+                    : outcome === 'SENT'
+                        ? `<span class="bg-[#8bd3dd] border border-black px-2 py-0.5 rounded text-xs font-extrabold">Terkirim</span><br><span class="text-xs text-gray-500">${escHtml(digiMessage(o))}</span>`
+                        : `<span class="bg-[#f582ae] border border-black px-2 py-0.5 rounded text-xs font-extrabold">Gagal</span><br><span class="text-xs text-gray-500">${escHtml(digiMessage(o))}</span>`;
+
                 const btnAction = o.status === 'PENDING'
                     ? `<button onclick="approveOrder(${o.totalPrice})" class="neo-btn bg-[#8bd3dd] text-black font-extrabold px-3 py-1 text-xs">Proses Digiflazz</button>`
-                    : `<span class="text-xs font-bold text-gray-500">Selesai ✓</span>`;
+                    : outcome === 'FAILED'
+                        ? `<button onclick="approveOrder(${o.totalPrice})" class="neo-btn bg-[#faae2b] text-black font-extrabold px-3 py-1 text-xs">Kirim Ulang</button>`
+                        : `<span class="text-xs font-bold text-gray-500">Selesai ✓</span>`;
 
                 tbody.innerHTML += `
                     <tr class="border-b border-gray-200">
@@ -311,6 +359,7 @@
                         <td class="py-3 px-2 font-bold">${o.item} <span class="text-xs font-mono-saweria">[${o.sku}]</span></td>
                         <td class="py-3 px-2 font-mono-saweria font-bold">Rp ${o.totalPrice.toLocaleString('id-ID')}</td>
                         <td class="py-3 px-2">${badge}</td>
+                        <td class="py-3 px-2">${digiCell}</td>
                         <td class="py-3 px-2 text-center">${btnAction}</td>
                     </tr>
                 `;
@@ -324,8 +373,47 @@
                 body: JSON.stringify({ password: adminPassword, totalPrice })
             });
             const data = await res.json();
-            Swal.fire({ icon: 'success', title: 'Diproses!', text: data.message, confirmButtonColor: '#faae2b' });
+            Swal.fire({ icon: data.success ? 'success' : 'error', title: data.success ? 'Diproses!' : 'Digiflazz Gagal!', text: data.message, confirmButtonColor: '#faae2b' });
             loadOrders();
+        }
+
+        async function testDigiflazz() {
+            const box = document.getElementById('digiTestResult');
+            const btn = document.getElementById('digiTestBtn');
+            btn.disabled = true;
+            box.innerHTML = '<span class="font-bold">Menghubungi Digiflazz...</span>';
+            try {
+                const res = await fetch('/api/digiflazz-test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: adminPassword, skus: productsList.map(p => p.sku) })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    box.innerHTML = `<span class="font-bold text-red-600">Tes gagal: ${escHtml(data.message || 'Password admin salah.')}</span>`;
+                    return;
+                }
+                const envLine = `<div>🔑 Kredensial Vercel: Username ${data.env.usernameSet ? '✅ terpasang' : '❌ BELUM DIPASANG'} • API Key ${data.env.apiKeySet ? '✅ terpasang' : '❌ BELUM DIPASANG'}</div>`;
+                let apiLine = '';
+                if (!data.api) apiLine = '<div>🌐 Koneksi: tidak dicoba karena kredensial belum lengkap.</div>';
+                else if (!data.api.reachable) apiLine = `<div>🌐 Koneksi: ❌ tidak bisa menghubungi api.digiflazz.com. Periksa koneksi server dan IP whitelist ke support Digiflazz.</div>`;
+                else if (typeof data.api.totalProducts === 'number') apiLine = `<div>🌐 Koneksi: ✅ terhubung, katalog ${data.api.totalProducts.toLocaleString('id-ID')} produk.</div>`;
+                else apiLine = `<div>🌐 Koneksi: ❌ Digiflazz menolak (${escHtml(data.api.message || '')}). Periksa username/API key.</div>`;
+                let skuLines = '';
+                if (data.skuResults && data.skuResults.length) {
+                    skuLines = '<div class="mt-2 space-y-1">' + data.skuResults.map(r => {
+                        if (!r.found) return `<div>❌ <b>${escHtml(r.sku)}</b> — tidak ditemukan di katalog Digiflazz. Perbaiki SKU-nya.</div>`;
+                        const st = r.active ? '✅ aktif' : '⚠️ tidak aktif di Digiflazz';
+                        const priceTxt = typeof r.price === 'number' ? ` (harga beli Rp ${r.price.toLocaleString('id-ID')})` : '';
+                        return `<div>✅ <b>${escHtml(r.sku)}</b> — ${escHtml(r.productName || '')}${priceTxt} • ${st}</div>`;
+                    }).join('') + '</div>';
+                }
+                box.innerHTML = `<div class="space-y-1 font-medium text-gray-800">${envLine}${apiLine}${skuLines}<div class="pt-1 font-bold">${escHtml(data.message || '')}</div></div>`;
+            } catch (e) {
+                box.innerHTML = '<span class="font-bold text-red-600">Tes gagal: server tidak merespons. Coba lagi.</span>';
+            } finally {
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

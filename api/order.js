@@ -36,7 +36,7 @@ async function processDigiflazz(order) {
     const digiApiKey = process.env.DIGIFLAZZ_API_KEY;
 
     if (!digiUsername || !digiApiKey) {
-        return { success: false, message: 'API Key Digiflazz belum dipasang di Vercel' };
+        return { success: false, status: 'ERROR', message: 'API Key Digiflazz belum dipasang di Vercel' };
     }
 
     const sign = crypto
@@ -44,19 +44,44 @@ async function processDigiflazz(order) {
         .update(`${digiUsername}${digiApiKey}${order.invoiceId}`)
         .digest('hex');
 
-    const response = await fetch('https://api.digiflazz.com/v1/transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            username: digiUsername,
-            buyer_sku_code: order.sku,
-            customer_no: order.customerNo,
-            ref_id: order.invoiceId,
-            sign: sign
-        })
-    });
+    let payload;
+    try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 8000);
+        let response;
+        try {
+            response = await fetch('https://api.digiflazz.com/v1/transaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: digiUsername,
+                    buyer_sku_code: order.sku,
+                    customer_no: order.customerNo,
+                    ref_id: order.invoiceId,
+                    sign: sign
+                }),
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timer);
+        }
+        payload = await response.json();
+    } catch (e) {
+        return { success: false, status: 'ERROR', message: 'Tidak bisa menghubungi Digiflazz (jaringan/waktu habis). Coba kirim ulang.' };
+    }
 
-    return await response.json();
+    // Bentuk jawaban Digiflazz: { data: { status: Sukses|Gagal|Pending, message, rc, sn } }.
+    // Sukses/Pending = permintaan diterima. Gagal = ditolak (SKU/saldo/format).
+    const data = (payload && payload.data) || {};
+    const digiStatus = data.status || '';
+    const accepted = digiStatus === 'Sukses' || digiStatus === 'Pending';
+    return {
+        success: accepted,
+        status: digiStatus || 'ERROR',
+        message: data.message || 'Digiflazz tidak memberi keterangan.',
+        rc: data.rc || null,
+        sn: data.sn || null
+    };
 }
 
 function normalizeWa(input) {
@@ -83,14 +108,14 @@ async function saveOrderToFirebase(order) {
     } catch (e) {}
 }
 
-async function updateOrderStatusInFirebase(invoiceId, status) {
+async function updateOrderStatusInFirebase(invoiceId, status, extras) {
     try {
         const base = firebaseBaseUrl();
         if (!base || !invoiceId) return;
         await fetch(`${base}/orders/${encodeURIComponent(invoiceId)}.json`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: status, paidAt: Date.now() })
+            body: JSON.stringify({ status: status, paidAt: Date.now(), ...(extras || {}) })
         });
     } catch (e) {}
 }
@@ -128,10 +153,14 @@ export default async function handler(req, res) {
         order.status = 'PAID';
         const digiResult = await processDigiflazz(order);
         order.digiflazzResult = digiResult;
-        await updateOrderStatusInFirebase(order.invoiceId, 'PAID');
+        order.deliveryStatus = digiResult.success ? 'SENT' : 'FAILED';
+        order.digiflazzMessage = digiResult.message;
+        await updateOrderStatusInFirebase(order.invoiceId, 'PAID', { deliveryStatus: order.deliveryStatus, digiflazzMessage: order.digiflazzMessage });
         return res.status(200).json({
-            success: true,
-            message: `Pesanan ${order.invoiceId} disetujui & dikirim ke Digiflazz!`,
+            success: digiResult.success,
+            message: digiResult.success
+                ? `Pesanan ${order.invoiceId} disetujui & dikirim ke Digiflazz!`
+                : `Pembayaran ${order.invoiceId} LUNAS, tapi Digiflazz GAGAL (${digiResult.message}). Perbaiki penyebabnya, lalu tekan Kirim Ulang.`,
             digiflazz: digiResult
         });
     }
@@ -159,11 +188,15 @@ export default async function handler(req, res) {
         matchedOrder.status = 'PAID';
         const digiResult = await processDigiflazz(matchedOrder);
         matchedOrder.digiflazzResult = digiResult;
-        await updateOrderStatusInFirebase(matchedOrder.invoiceId, 'PAID');
+        matchedOrder.deliveryStatus = digiResult.success ? 'SENT' : 'FAILED';
+        matchedOrder.digiflazzMessage = digiResult.message;
+        await updateOrderStatusInFirebase(matchedOrder.invoiceId, 'PAID', { deliveryStatus: matchedOrder.deliveryStatus, digiflazzMessage: matchedOrder.digiflazzMessage });
 
         return res.status(200).json({
-            success: true,
-            message: `Pembayaran ${matchedOrder.invoiceId} Lunas & Digiflazz Diproses!`,
+            success: digiResult.success,
+            message: digiResult.success
+                ? `Pembayaran ${matchedOrder.invoiceId} Lunas & Digiflazz Diproses!`
+                : `Pembayaran ${matchedOrder.invoiceId} Lunas, tapi Digiflazz GAGAL (${digiResult.message}).`,
             digiflazz: digiResult
         });
     }
