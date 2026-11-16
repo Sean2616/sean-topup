@@ -82,6 +82,24 @@
             font-weight: 800 !important;
             color: #000000 !important;
         }
+        /* Floater Hubungi CS */
+        .cs-floater {
+            position: fixed;
+            right: 1.25rem;
+            bottom: 1.25rem;
+            z-index: 50;
+        }
+        /* Saat invoice dicetak, hanya invoice yang tampil */
+        @media print {
+            body * { visibility: hidden; }
+            #invoiceSection, #invoiceSection * { visibility: visible; }
+            #invoiceSection {
+                position: absolute;
+                left: 0; top: 0; right: 0;
+                margin: 0 !important;
+            }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-[#faae2b] selection:text-black pb-12">
@@ -260,6 +278,58 @@
         </div>
     </main>
 
+    <!-- INVOICE SETELAH ORDER -->
+    <section id="invoiceSection" class="max-w-5xl mx-auto px-4 mt-8 hidden">
+        <div class="neo-card p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="bg-[#faae2b] border-2 border-black font-mono-saweria font-bold rounded-lg px-3 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-sm">INVOICE</div>
+                    <div>
+                        <p class="font-mono-saweria font-bold text-sm" id="invInvoiceId">-</p>
+                        <p class="text-xs text-gray-600 font-medium" id="invoiceDate">-</p>
+                    </div>
+                </div>
+                <span id="invoiceStatus" class="bg-[#faae2b] border-2 border-black px-3 py-1 rounded-lg text-xs font-extrabold shadow-[2px_2px_0px_#000] font-mono-saweria">MENUNGGU PEMBAYARAN</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="text-sm space-y-2 font-medium text-black">
+                    <div class="flex justify-between gap-3"><span class="text-gray-600">Nickname:</span> <span class="font-extrabold text-right" id="invNickname">-</span></div>
+                    <div class="flex justify-between gap-3"><span class="text-gray-600">ID MLBB:</span> <span class="font-bold text-right" id="invId">-</span></div>
+                    <div class="flex justify-between gap-3"><span class="text-gray-600">Item:</span> <span class="font-extrabold text-right" id="invItem">-</span></div>
+                    <div class="flex justify-between gap-3"><span class="text-gray-600">Metode:</span> <span class="font-bold text-right" id="invMethod">-</span></div>
+                    <hr class="border-black border-dashed my-2">
+                    <div class="flex justify-between gap-3"><span class="text-gray-600">Harga Item:</span> <span class="font-bold font-mono-saweria" id="invPrice">-</span></div>
+                    <div class="flex justify-between gap-3"><span class="text-gray-600">Kode Unik:</span> <span class="font-bold font-mono-saweria" id="invUnique">-</span></div>
+                    <div class="flex justify-between gap-3 text-base"><span class="font-bold">Total Bayar:</span> <span class="font-mono-saweria font-bold bg-[#faae2b] px-2 rounded border border-black" id="invTotal">-</span></div>
+                    <p class="text-xs text-gray-600 font-medium pt-2">Bayar dengan nominal yang persis sama, termasuk kode unik, supaya pembayaran terdeteksi otomatis. Simpan ID invoice ini untuk komplain atau pengecekan.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="bg-white p-3 rounded-xl inline-block border-[3px] border-black shadow-[4px_4px_0px_#000]">
+                        <img id="invQrImg" src="" alt="QRIS" class="w-48 h-48 mx-auto">
+                    </div>
+                    <p class="text-xs text-gray-600 font-bold mt-3">Total Bayar (Otomatis Muncul Saat Scan):</p>
+                    <p class="text-xl font-mono-saweria font-bold text-black bg-[#faae2b] inline-block px-3 py-0.5 rounded border border-black mt-1" id="invTotalBig">-</p>
+                    <div id="invoiceWaiting" class="flex items-center justify-center gap-2 text-xs font-bold text-black pt-3">
+                        <i class="fa-solid fa-spinner fa-spin"></i> <span id="invoiceWaitingText">Menunggu pembayaran kamu...</span>
+                    </div>
+                    <div id="invoicePaidBox" class="hidden mt-3 p-3 bg-[#8bd3dd]/40 border-2 border-black rounded-xl text-xs font-bold">
+                        ✅ Pembayaran diterima! Diamond sedang meluncur ke akun MLBB kamu! 🚀
+                    </div>
+                </div>
+            </div>
+
+            <div class="no-print flex flex-wrap gap-3 mt-6">
+                <button onclick="copyInvoiceId()" class="neo-btn bg-white text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-regular fa-copy"></i> Salin ID Invoice</button>
+                <button onclick="copyTotal()" class="neo-btn bg-white text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-regular fa-copy"></i> Salin Total</button>
+                <button onclick="printInvoice()" class="neo-btn bg-[#8bd3dd] text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-solid fa-print"></i> Cetak Invoice</button>
+                <button onclick="openCsChat(event)" class="neo-btn bg-[#25D366] text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-brands fa-whatsapp"></i> Hubungi CS</button>
+                <button onclick="newOrder()" class="neo-btn bg-[#faae2b] text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-solid fa-rotate-left"></i> Pesanan Baru</button>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="max-w-5xl mx-auto px-4 mt-12">
         <div class="neo-card bg-white p-5 text-center font-mono-saweria text-xs">
@@ -268,7 +338,15 @@
         </div>
     </footer>
 
+    <!-- Floater Hubungi CS -->
+    <a id="csFloater" href="#" onclick="return openCsChat(event)" class="cs-floater neo-btn no-print bg-[#25D366] text-black font-extrabold px-4 py-3 flex items-center gap-2 text-sm" aria-label="Hubungi CS lewat WhatsApp">
+        <i class="fa-brands fa-whatsapp text-xl"></i><span>Hubungi CS</span>
+    </a>
+
     <script>
+        // NOMOR WHATSAPP CS (format: 62 + nomor, tanpa +, spasi, atau strip). Ganti dengan nomor CS Sean Top Up.
+        const CS_WHATSAPP_NUMBER = '6281268428112';
+        let lastInvoice = null;
         let selectedItem = null;
         let selectedPrice = 0;
         let selectedSku = null;
@@ -288,6 +366,128 @@
 
         function formatRupiah(angka) {
             return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        function csNumberIsSet() {
+            return /^62[0-9]{7,13}$/.test(CS_WHATSAPP_NUMBER);
+        }
+
+        function buildCsMessage() {
+            if (lastInvoice) {
+                return 'Halo Sean Top Up, saya butuh bantuan untuk pesanan ' + lastInvoice.invoiceId + '. ID MLBB: ' + lastInvoice.userId + ' (' + lastInvoice.zoneId + '), Item: ' + lastInvoice.item + ', Total: ' + formatRupiah(lastInvoice.totalPrice) + '.';
+            }
+            return 'Halo Sean Top Up, saya butuh bantuan.';
+        }
+
+        function openCsChat(event) {
+            if (event) event.preventDefault();
+            if (!csNumberIsSet()) {
+                Swal.fire({ icon: 'info', title: 'Nomor CS Belum Diatur', text: 'Nomor WhatsApp CS masih dalam pengaturan. Silakan coba lagi nanti.', background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
+                return false;
+            }
+            window.open('https://wa.me/' + CS_WHATSAPP_NUMBER + '?text=' + encodeURIComponent(buildCsMessage()), '_blank');
+            return false;
+        }
+
+        function setInvoicePaid(isPaid) {
+            const badge = document.getElementById('invoiceStatus');
+            const waiting = document.getElementById('invoiceWaiting');
+            const paidBox = document.getElementById('invoicePaidBox');
+            if (isPaid) {
+                badge.textContent = '✓ LUNAS';
+                badge.className = 'bg-[#8bd3dd] border-2 border-black px-3 py-1 rounded-lg text-xs font-extrabold shadow-[2px_2px_0px_#000] font-mono-saweria';
+                waiting.classList.add('hidden');
+                paidBox.classList.remove('hidden');
+            } else {
+                badge.textContent = 'MENUNGGU PEMBAYARAN';
+                badge.className = 'bg-[#faae2b] border-2 border-black px-3 py-1 rounded-lg text-xs font-extrabold shadow-[2px_2px_0px_#000] font-mono-saweria';
+                waiting.classList.remove('hidden');
+                paidBox.classList.add('hidden');
+            }
+        }
+
+        function showInvoice(order, opts) {
+            lastInvoice = order;
+            try { localStorage.setItem('seanTopupLastInvoice', JSON.stringify(order)); } catch (e) {}
+            document.getElementById('invoiceSection').classList.remove('hidden');
+            document.getElementById('invInvoiceId').textContent = order.invoiceId;
+            document.getElementById('invoiceDate').textContent = new Date(order.createdAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB';
+            document.getElementById('invNickname').textContent = order.nickname;
+            document.getElementById('invId').textContent = order.userId + ' (' + order.zoneId + ')';
+            document.getElementById('invItem').textContent = order.item;
+            document.getElementById('invMethod').textContent = order.paymentMethod;
+            document.getElementById('invPrice').textContent = formatRupiah(order.price);
+            document.getElementById('invUnique').textContent = formatRupiah(order.uniqueCode);
+            document.getElementById('invTotal').textContent = formatRupiah(order.totalPrice);
+            document.getElementById('invTotalBig').textContent = formatRupiah(order.totalPrice);
+            document.getElementById('invQrImg').src = order.qrImage;
+            document.getElementById('invQrImg').alt = 'QRIS untuk ' + order.invoiceId;
+            setInvoicePaid(order.status === 'PAID');
+            const doScroll = !opts || opts.scroll !== false;
+            if (doScroll) {
+                document.getElementById('invoiceSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function restoreLastInvoice() {
+            try {
+                const saved = localStorage.getItem('seanTopupLastInvoice');
+                if (!saved) return;
+                const order = JSON.parse(saved);
+                if (!order || !order.invoiceId) return;
+                showInvoice(order, { scroll: false });
+                if (order.status !== 'PAID') {
+                    startPollingStatus(order.invoiceId);
+                }
+            } catch (e) {}
+        }
+
+        function copyText(text, label) {
+            const done = () => Swal.fire({ icon: 'success', title: label + ' Tersalin', text: String(text), background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
+            const fallbackCopy = () => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); done(); }
+                catch (e) { Swal.fire({ icon: 'error', title: 'Gagal Menyalin', text: String(text), background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' }); }
+                document.body.removeChild(ta);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(String(text)).then(done).catch(fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
+        }
+
+        function copyInvoiceId() {
+            if (lastInvoice) copyText(lastInvoice.invoiceId, 'ID Invoice');
+        }
+
+        function copyTotal() {
+            if (lastInvoice) copyText(String(lastInvoice.totalPrice), 'Total bayar');
+        }
+
+        function printInvoice() {
+            window.print();
+        }
+
+        function newOrder() {
+            if (checkStatusInterval) clearInterval(checkStatusInterval);
+            lastInvoice = null;
+            try { localStorage.removeItem('seanTopupLastInvoice'); } catch (e) {}
+            document.getElementById('invoiceSection').classList.add('hidden');
+            document.getElementById('userId').value = '';
+            document.getElementById('zoneId').value = '';
+            document.getElementById('whatsapp').value = '';
+            document.querySelectorAll('.nominal-card').forEach(c => c.classList.remove('item-selected'));
+            document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('item-selected'));
+            selectedItem = null;
+            selectedPrice = 0;
+            selectedSku = null;
+            selectedPaymentMethod = null;
+            document.querySelectorAll('.price-display').forEach(d => d.innerText = 'Rp 0');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function renderProductCards(products) {
@@ -348,7 +548,10 @@
             renderProductCards(fallbackProducts);
         }
 
-        document.addEventListener('DOMContentLoaded', fetchProductsFromAdmin);
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchProductsFromAdmin();
+            restoreLastInvoice();
+        });
 
         function selectNominal(element, itemName, price, skuCode) {
             document.querySelectorAll('.nominal-card').forEach(c => c.classList.remove('item-selected'));
@@ -437,32 +640,23 @@
                     const orderData = await orderRes.json();
                     if (!orderData.success) throw new Error(orderData.message);
 
-                    startPollingStatus(orderData.invoiceId);
-
-                    Swal.fire({
-                        title: 'Scan QRIS Sekarang',
-                        html: `
-                            <div class="text-sm space-y-3 mt-1 text-black">
-                                <p class="font-mono-saweria text-xs">Invoice: <b class="bg-[#8bd3dd] px-2 py-0.5 rounded border border-black">${orderData.invoiceId}</b></p>
-                                <div class="bg-white p-3 rounded-xl inline-block border-[3px] border-black shadow-[4px_4px_0px_#000]">
-                                    <img src="${orderData.qrImage}" alt="QRIS GoPay Merchant" class="w-48 h-48 mx-auto">
-                                </div>
-                                <div class="bg-white p-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_#000]">
-                                    <p class="text-xs text-gray-600 font-bold">Total Bayar (Otomatis Muncul Saat Scan):</p>
-                                    <p class="text-xl font-mono-saweria font-bold text-black bg-[#faae2b] inline-block px-3 py-0.5 rounded border border-black mt-1">${formatRupiah(orderData.totalPrice)}</p>
-                                </div>
-                                <div class="flex items-center justify-center gap-2 text-xs font-bold text-black pt-1">
-                                    <i class="fa-solid fa-spinner fa-spin"></i> Menunggu pembayaran kamu...
-                                </div>
-                            </div>
-                        `,
-                        showConfirmButton: true,
-                        confirmButtonColor: '#faae2b',
-                        confirmButtonText: 'Tutup',
-                        background: '#fff9eb',
-                        color: '#000',
-                        willClose: () => { if (checkStatusInterval) clearInterval(checkStatusInterval); }
+                    Swal.close();
+                    showInvoice({
+                        invoiceId: orderData.invoiceId,
+                        nickname: checkData.nickname,
+                        userId: userId,
+                        zoneId: zoneId,
+                        item: selectedItem,
+                        sku: selectedSku,
+                        price: selectedPrice,
+                        uniqueCode: orderData.uniqueCode,
+                        totalPrice: orderData.totalPrice,
+                        paymentMethod: selectedPaymentMethod,
+                        qrImage: orderData.qrImage,
+                        status: 'PENDING',
+                        createdAt: Date.now()
                     });
+                    startPollingStatus(orderData.invoiceId);
                 }
             } catch (error) {
                 Swal.fire({ icon: 'error', title: 'Tidak Dapat Diproses!', text: error.message || 'Terjadi kesalahan sistem', background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
@@ -477,12 +671,23 @@
                     const data = await res.json();
                     if (data.status === 'PAID') {
                         clearInterval(checkStatusInterval);
+                        if (lastInvoice && lastInvoice.invoiceId === invoiceId) {
+                            lastInvoice.status = 'PAID';
+                            try { localStorage.setItem('seanTopupLastInvoice', JSON.stringify(lastInvoice)); } catch (e) {}
+                            setInvoicePaid(true);
+                        }
                         Swal.fire({
                             icon: 'success',
                             title: 'Yeay! Pembayaran Masuk!',
                             html: `Terima kasih! Pesanan <b>${invoiceId}</b> sudah lunas dan Diamond sedang meluncur ke akun MLBB kamu! 🚀`,
                             background: '#fff9eb', color: '#000', confirmButtonColor: '#8bd3dd'
                         });
+                    } else if (data.status === 'NOT_FOUND') {
+                        clearInterval(checkStatusInterval);
+                        const waitingText = document.getElementById('invoiceWaitingText');
+                        if (waitingText) {
+                            waitingText.textContent = 'Status pembayaran tidak dapat dicek otomatis. Simpan ID invoice ini dan hubungi CS bila diamond belum masuk.';
+                        }
                     }
                 } catch (e) {}
             }, 3000);
