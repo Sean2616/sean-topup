@@ -59,6 +59,42 @@ async function processDigiflazz(order) {
     return await response.json();
 }
 
+function normalizeWa(input) {
+    const digits = String(input || '').replace(/\D/g, '');
+    if (digits.startsWith('0')) return '62' + digits.slice(1);
+    return digits;
+}
+
+function firebaseBaseUrl() {
+    return process.env.FIREBASE_DB_URL ? process.env.FIREBASE_DB_URL.replace(/\/$/, '') : null;
+}
+
+// Simpan order ke Firebase agar muncul di riwayat pesanan customer.
+// Best-effort: kalau Firebase gagal, order tetap jalan seperti biasa.
+async function saveOrderToFirebase(order) {
+    try {
+        const base = firebaseBaseUrl();
+        if (!base || !order.invoiceId) return;
+        await fetch(`${base}/orders/${encodeURIComponent(order.invoiceId)}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(order)
+        });
+    } catch (e) {}
+}
+
+async function updateOrderStatusInFirebase(invoiceId, status) {
+    try {
+        const base = firebaseBaseUrl();
+        if (!base || !invoiceId) return;
+        await fetch(`${base}/orders/${encodeURIComponent(invoiceId)}.json`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: status, paidAt: Date.now() })
+        });
+    } catch (e) {}
+}
+
 export default async function handler(req, res) {
     const action = req.query.action;
     const adminPassword = process.env.ADMIN_PASSWORD || 'sean123';
@@ -92,6 +128,7 @@ export default async function handler(req, res) {
         order.status = 'PAID';
         const digiResult = await processDigiflazz(order);
         order.digiflazzResult = digiResult;
+        await updateOrderStatusInFirebase(order.invoiceId, 'PAID');
         return res.status(200).json({
             success: true,
             message: `Pesanan ${order.invoiceId} disetujui & dikirim ke Digiflazz!`,
@@ -122,6 +159,7 @@ export default async function handler(req, res) {
         matchedOrder.status = 'PAID';
         const digiResult = await processDigiflazz(matchedOrder);
         matchedOrder.digiflazzResult = digiResult;
+        await updateOrderStatusInFirebase(matchedOrder.invoiceId, 'PAID');
 
         return res.status(200).json({
             success: true,
@@ -157,9 +195,13 @@ export default async function handler(req, res) {
 
     global.pendingOrders[totalPrice] = {
         invoiceId, userId, zoneId, customerNo, nickname, item, sku, totalPrice, whatsapp,
+        price: parseInt(price), uniqueCode, paymentMethod, qrImage, wa: normalizeWa(whatsapp),
         status: 'PENDING',
         createdAt: Date.now()
     };
+
+    // Simpan ke Firebase agar muncul di riwayat pesanan customer (best-effort).
+    await saveOrderToFirebase(global.pendingOrders[totalPrice]);
 
     return res.status(200).json({
         success: true, invoiceId, nickname, item, sku, paymentMethod, totalPrice, uniqueCode, qrImage

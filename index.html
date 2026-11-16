@@ -306,7 +306,7 @@
                 </div>
 
                 <div class="text-center">
-                    <div class="bg-white p-3 rounded-xl inline-block border-[3px] border-black shadow-[4px_4px_0px_#000]">
+                    <div id="invQrWrap" class="bg-white p-3 rounded-xl inline-block border-[3px] border-black shadow-[4px_4px_0px_#000]">
                         <img id="invQrImg" src="" alt="QRIS" class="w-48 h-48 mx-auto">
                     </div>
                     <p class="text-xs text-gray-600 font-bold mt-3">Total Bayar (Otomatis Muncul Saat Scan):</p>
@@ -327,6 +327,26 @@
                 <button onclick="openCsChat(event)" class="neo-btn bg-[#25D366] text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-brands fa-whatsapp"></i> Hubungi CS</button>
                 <button onclick="newOrder()" class="neo-btn bg-[#faae2b] text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-solid fa-rotate-left"></i> Pesanan Baru</button>
             </div>
+        </div>
+    </section>
+
+    <!-- RIWAYAT PESANAN -->
+    <section id="historySection" class="max-w-5xl mx-auto px-4 mt-8">
+        <div class="neo-card p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="bg-[#8bd3dd] border-2 border-black rounded-lg w-9 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-base"><i class="fa-solid fa-receipt"></i></div>
+                <h3 class="text-lg font-extrabold">Riwayat Pesanan</h3>
+            </div>
+            <p class="text-sm text-gray-700 font-medium mb-4">Masukkan nomor WhatsApp yang dipakai saat order untuk melihat pesanan kamu.</p>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input type="number" id="historyWa" placeholder="Contoh: 081234567890" class="neo-input flex-1 px-4 py-2.5 text-sm font-bold">
+                <button onclick="fetchHistory()" class="neo-btn bg-[#8bd3dd] text-black font-extrabold px-5 py-2.5 text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Lihat Riwayat</button>
+            </div>
+            <div id="historyLoading" class="hidden flex items-center gap-2 text-sm font-bold text-black pt-4">
+                <i class="fa-solid fa-spinner fa-spin"></i> Memuat riwayat...
+            </div>
+            <div id="historyResults" class="space-y-3 mt-4"></div>
+            <p id="historyEmpty" class="hidden text-sm font-bold text-gray-600 pt-4">Belum ada pesanan untuk nomor ini. Riwayat hanya menampilkan pesanan yang dibuat setelah fitur ini aktif.</p>
         </div>
     </section>
 
@@ -393,16 +413,19 @@
             const badge = document.getElementById('invoiceStatus');
             const waiting = document.getElementById('invoiceWaiting');
             const paidBox = document.getElementById('invoicePaidBox');
+            const qrWrap = document.getElementById('invQrWrap');
             if (isPaid) {
                 badge.textContent = '✓ LUNAS';
                 badge.className = 'bg-[#8bd3dd] border-2 border-black px-3 py-1 rounded-lg text-xs font-extrabold shadow-[2px_2px_0px_#000] font-mono-saweria';
                 waiting.classList.add('hidden');
                 paidBox.classList.remove('hidden');
+                if (qrWrap) qrWrap.classList.add('hidden');
             } else {
                 badge.textContent = 'MENUNGGU PEMBAYARAN';
                 badge.className = 'bg-[#faae2b] border-2 border-black px-3 py-1 rounded-lg text-xs font-extrabold shadow-[2px_2px_0px_#000] font-mono-saweria';
                 waiting.classList.remove('hidden');
                 paidBox.classList.add('hidden');
+                if (qrWrap) qrWrap.classList.remove('hidden');
             }
         }
 
@@ -423,6 +446,9 @@
             document.getElementById('invQrImg').src = order.qrImage;
             document.getElementById('invQrImg').alt = 'QRIS untuk ' + order.invoiceId;
             setInvoicePaid(order.status === 'PAID');
+            if (!order.qrImage) {
+                document.getElementById('invQrWrap').classList.add('hidden');
+            }
             const doScroll = !opts || opts.scroll !== false;
             if (doScroll) {
                 document.getElementById('invoiceSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -488,6 +514,126 @@
             selectedPaymentMethod = null;
             document.querySelectorAll('.price-display').forEach(d => d.innerText = 'Rp 0');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        let historyOrders = [];
+
+        function formatHistoryDate(createdAt) {
+            const d = new Date(createdAt);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB';
+        }
+
+        async function fetchHistory() {
+            const input = document.getElementById('historyWa');
+            let wa = input.value.trim();
+            if (!wa) {
+                wa = document.getElementById('whatsapp').value.trim();
+                input.value = wa;
+            }
+            if (!wa) {
+                Swal.fire({ icon: 'warning', title: 'Nomor Belum Diisi', text: 'Isi nomor WhatsApp dulu untuk melihat riwayat pesanan.', background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
+                return;
+            }
+            if (!/^(08|628)[0-9]{7,13}$/.test(wa)) {
+                Swal.fire({ icon: 'error', title: 'Nomor WA Tidak Valid!', text: 'Harap gunakan nomor WhatsApp Indonesia (diawali 08 atau 628).', background: '#fff9eb', color: '#000', confirmButtonColor: '#faae2b' });
+                return;
+            }
+            const loading = document.getElementById('historyLoading');
+            const results = document.getElementById('historyResults');
+            const empty = document.getElementById('historyEmpty');
+            loading.classList.remove('hidden');
+            results.innerHTML = '';
+            empty.classList.add('hidden');
+            try {
+                const res = await fetch('/api/history?whatsapp=' + encodeURIComponent(wa), { cache: 'no-store' });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Gagal memuat riwayat.');
+                historyOrders = data.orders || [];
+                renderHistory(historyOrders);
+            } catch (e) {
+                results.innerHTML = '';
+                const err = document.createElement('p');
+                err.className = 'text-sm font-bold text-red-600';
+                err.textContent = e.message || 'Gagal memuat riwayat. Silakan coba lagi.';
+                results.appendChild(err);
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+
+        function renderHistory(orders) {
+            const results = document.getElementById('historyResults');
+            const empty = document.getElementById('historyEmpty');
+            results.innerHTML = '';
+            if (!orders.length) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+            orders.forEach(o => {
+                const card = document.createElement('div');
+                card.className = 'bg-[#fff9eb] border-2 border-black rounded-xl p-4 shadow-[3px_3px_0px_#000] flex flex-wrap items-center justify-between gap-3';
+                const left = document.createElement('div');
+                left.className = 'text-sm space-y-1 font-medium text-black';
+                const line1 = document.createElement('p');
+                const inv = document.createElement('span');
+                inv.className = 'font-mono-saweria font-bold';
+                inv.textContent = o.invoiceId;
+                line1.appendChild(inv);
+                line1.appendChild(document.createTextNode(' • ' + formatHistoryDate(o.createdAt)));
+                const line2 = document.createElement('p');
+                line2.className = 'font-extrabold';
+                line2.textContent = o.item;
+                const line3 = document.createElement('p');
+                line3.className = 'text-xs text-gray-600';
+                line3.textContent = (o.nickname || '-') + ' • ID ' + o.userId + ' (' + o.zoneId + ')';
+                left.appendChild(line1);
+                left.appendChild(line2);
+                left.appendChild(line3);
+                const right = document.createElement('div');
+                right.className = 'flex flex-col items-end gap-2';
+                const total = document.createElement('p');
+                total.className = 'font-mono-saweria font-bold text-sm';
+                total.textContent = formatRupiah(o.totalPrice || 0);
+                const badge = document.createElement('span');
+                const paid = o.status === 'PAID';
+                badge.className = (paid ? 'bg-[#8bd3dd]' : 'bg-[#faae2b]') + ' border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-extrabold shadow-[2px_2px_0px_#000] font-mono-saweria';
+                badge.textContent = paid ? '✓ LUNAS' : 'MENUNGGU PEMBAYARAN';
+                const btn = document.createElement('button');
+                btn.className = 'neo-btn bg-white text-black font-extrabold px-3 py-1.5 text-xs';
+                btn.textContent = 'Lihat Invoice';
+                btn.addEventListener('click', () => viewHistoryInvoice(o.invoiceId));
+                right.appendChild(total);
+                right.appendChild(badge);
+                right.appendChild(btn);
+                card.appendChild(left);
+                card.appendChild(right);
+                results.appendChild(card);
+            });
+        }
+
+        function viewHistoryInvoice(invoiceId) {
+            const o = historyOrders.find(x => x.invoiceId === invoiceId);
+            if (!o) return;
+            showInvoice({
+                invoiceId: o.invoiceId,
+                nickname: o.nickname,
+                userId: o.userId,
+                zoneId: o.zoneId,
+                item: o.item,
+                sku: o.sku,
+                price: o.price || 0,
+                uniqueCode: o.uniqueCode || 0,
+                totalPrice: o.totalPrice || 0,
+                paymentMethod: o.paymentMethod,
+                qrImage: o.qrImage || '',
+                status: o.status,
+                createdAt: o.createdAt
+            });
+            if (o.status !== 'PAID') {
+                startPollingStatus(o.invoiceId);
+            }
         }
 
         function renderProductCards(products) {
