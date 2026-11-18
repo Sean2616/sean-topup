@@ -54,7 +54,7 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold uppercase mb-1">Password Admin :</label>
-                    <input type="password" id="adminPassInput" placeholder="Default: sean123" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
+                    <input type="password" id="adminPassInput" placeholder="Masukkan password admin" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
                 </div>
                 <button onclick="loginAdmin()" class="neo-btn w-full bg-[#faae2b] text-black font-extrabold py-3 text-sm">MASUK DASHBOARD</button>
             </div>
@@ -324,7 +324,11 @@
         }
 
         async function loadOrders() {
-            const res = await fetch(`/api/order?action=list&password=${encodeURIComponent(adminPassword)}`);
+            const res = await fetch('/api/order?action=list', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: adminPassword })
+            });
             const data = await res.json();
             const tbody = document.getElementById('orderTableBody');
 

@@ -90,17 +90,30 @@ function normalizeWa(input) {
     return digits;
 }
 
-function firebaseBaseUrl() {
-    return process.env.FIREBASE_DB_URL ? process.env.FIREBASE_DB_URL.replace(/\/$/, '') : null;
+// URL Firebase dengan Database Secret (?auth=).
+// Secret HANYA dibaca dari environment variable FIREBASE_DB_SECRET di Vercel.
+// Jangan pernah menulis secret di file kode atau commit ke GitHub.
+// Kalau secret belum dipasang, URL tanpa auth dipakai (masa transisi saat
+// rules masih terbuka). Setelah rules dikunci, secret WAJIB terpasang.
+function firebaseUrl(path) {
+    const base = process.env.FIREBASE_DB_URL
+        ? process.env.FIREBASE_DB_URL.replace(/\/$/, '')
+        : null;
+    if (!base) return null;
+    const secret = process.env.FIREBASE_DB_SECRET;
+    return secret
+        ? `${base}${path}.json?auth=${encodeURIComponent(secret)}`
+        : `${base}${path}.json`;
 }
 
 // Simpan order ke Firebase agar muncul di riwayat pesanan customer.
 // Best-effort: kalau Firebase gagal, order tetap jalan seperti biasa.
 async function saveOrderToFirebase(order) {
     try {
-        const base = firebaseBaseUrl();
-        if (!base || !order.invoiceId) return;
-        await fetch(`${base}/orders/${encodeURIComponent(order.invoiceId)}.json`, {
+        if (!order.invoiceId) return;
+        const url = firebaseUrl(`/orders/${encodeURIComponent(order.invoiceId)}`);
+        if (!url) return;
+        await fetch(url, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(order)
@@ -110,9 +123,10 @@ async function saveOrderToFirebase(order) {
 
 async function updateOrderStatusInFirebase(invoiceId, status, extras) {
     try {
-        const base = firebaseBaseUrl();
-        if (!base || !invoiceId) return;
-        await fetch(`${base}/orders/${encodeURIComponent(invoiceId)}.json`, {
+        if (!invoiceId) return;
+        const url = firebaseUrl(`/orders/${encodeURIComponent(invoiceId)}`);
+        if (!url) return;
+        await fetch(url, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: status, paidAt: Date.now(), ...(extras || {}) })
@@ -122,7 +136,9 @@ async function updateOrderStatusInFirebase(invoiceId, status, extras) {
 
 export default async function handler(req, res) {
     const action = req.query.action;
-    const adminPassword = process.env.ADMIN_PASSWORD || 'sean123';
+    // Tanpa ADMIN_PASSWORD di Vercel, semua akses admin ditolak (fail-closed).
+    // Tidak ada lagi password default di kode.
+    const adminPassword = process.env.ADMIN_PASSWORD;
 
     // 1. CEK STATUS PEMBAYARAN OLEH PEMBELI
     if (action === 'status') {
@@ -133,8 +149,11 @@ export default async function handler(req, res) {
     }
 
     // 2. DAFTAR PESANAN UNTUK HALAMAN ADMIN
+    // Password diterima lewat body POST (cara baru, dari admin.html) atau
+    // lewat query (kompatibilitas transisi untuk admin.html versi lama).
     if (action === 'list') {
-        if (req.query.password !== adminPassword) {
+        const supplied = (req.body && req.body.password) || req.query.password;
+        if (!adminPassword || supplied !== adminPassword) {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         }
         const orders = Object.values(global.pendingOrders).sort((a, b) => b.createdAt - a.createdAt);
@@ -144,7 +163,7 @@ export default async function handler(req, res) {
     // 3. APPROVE MANUAL DARI HALAMAN ADMIN
     if (action === 'approve' && req.method === 'POST') {
         const { password, totalPrice } = req.body;
-        if (password !== adminPassword) {
+        if (!adminPassword || password !== adminPassword) {
             return res.status(401).json({ success: false, message: 'Password Admin salah!' });
         }
         const order = global.pendingOrders[totalPrice];
@@ -168,9 +187,11 @@ export default async function handler(req, res) {
     // 4. WEBHOOK OTOMATIS DARI NOTIFIKASI HP ANDROID (GOPAY MERCHANT)
     if (action === 'mutasi') {
         const secret = req.query.secret || req.body?.secret;
-        const expectedSecret = process.env.WEBHOOK_SECRET || 'SEAN123';
+        // Tanpa WEBHOOK_SECRET di Vercel, semua panggilan mutasi ditolak
+        // (fail-closed). Tidak ada lagi secret default di kode.
+        const expectedSecret = process.env.WEBHOOK_SECRET;
 
-        if (secret !== expectedSecret) {
+        if (!expectedSecret || secret !== expectedSecret) {
             return res.status(403).json({ success: false, message: 'Secret Key salah!' });
         }
 

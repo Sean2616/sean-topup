@@ -9,9 +9,11 @@ export default async function handler(req, res) {
         return res.status(405).json({ success: false, message: 'Method Not Allowed' });
     }
 
-    const adminPassword = process.env.ADMIN_PASSWORD || 'sean123';
+    // Tanpa ADMIN_PASSWORD di Vercel, akses ditolak (fail-closed).
+    // Tidak ada lagi password default di kode.
+    const adminPassword = process.env.ADMIN_PASSWORD;
     const { password, skus } = req.body || {};
-    if (password !== adminPassword) {
+    if (!adminPassword || password !== adminPassword) {
         return res.status(401).json({ success: false, message: 'Password Admin salah!' });
     }
 

@@ -8,6 +8,22 @@ function normalizeWa(input) {
     return digits;
 }
 
+// URL Firebase dengan Database Secret (?auth=).
+// Secret HANYA dibaca dari environment variable FIREBASE_DB_SECRET di Vercel.
+// Jangan pernah menulis secret di file kode atau commit ke GitHub.
+// Kalau secret belum dipasang, URL tanpa auth dipakai (masa transisi saat
+// rules masih terbuka). Setelah rules dikunci, secret WAJIB terpasang.
+function firebaseUrl(path) {
+    const base = process.env.FIREBASE_DB_URL
+        ? process.env.FIREBASE_DB_URL.replace(/\/$/, '')
+        : null;
+    if (!base) return null;
+    const secret = process.env.FIREBASE_DB_SECRET;
+    return secret
+        ? `${base}${path}.json?auth=${encodeURIComponent(secret)}`
+        : `${base}${path}.json`;
+}
+
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
         return res.status(405).json({ success: false, message: 'Method Not Allowed' });
@@ -18,16 +34,14 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, message: 'Nomor WhatsApp tidak valid. Gunakan nomor Indonesia (08xx atau 62xx).' });
     }
 
-    const firebaseUrl = process.env.FIREBASE_DB_URL
-        ? process.env.FIREBASE_DB_URL.replace(/\/$/, '')
-        : null;
+    const url = firebaseUrl('/orders');
 
-    if (!firebaseUrl) {
+    if (!url) {
         return res.status(500).json({ success: false, message: 'Riwayat belum tersedia (Firebase belum diatur).' });
     }
 
     try {
-        const response = await fetch(`${firebaseUrl}/orders.json`, { cache: 'no-store' });
+        const response = await fetch(url, { cache: 'no-store' });
         const data = await response.json();
         const all = data ? Object.values(data) : [];
 
