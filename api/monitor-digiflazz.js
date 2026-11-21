@@ -170,32 +170,71 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, message: 'Daftar produk di Firebase kosong.' });
     }
 
-    // Ambil katalog Digiflazz
-    const sign = crypto.createHash('md5').update(`${username}${apiKey}pricelist`).digest('hex');
-    let catalog;
-    try {
-        const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 9000);
+    // Ambil katalog Digiflazz dengan Cache 15 menit di Firebase agar tidak kena rate-limit Digiflazz
+    const CACHE_TTL_MS = 15 * 60 * 1000;
+    const forceRefresh = req.query.refresh === '1';
+    const cached = await fetchFirebase('/digiflazz_catalog_cache');
+    const cacheFresh = cached && Array.isArray(cached.items) && cached.items.length > 0 && (Date.now() - (cached.updatedAt || 0) < CACHE_TTL_MS);
+
+    let catalog = null;
+    let fromCache = false;
+    let cacheAgeMin = 0;
+
+    if (!forceRefresh && cacheFresh) {
+        catalog = cached.items;
+        fromCache = true;
+        cacheAgeMin = Math.round((Date.now() - cached.updatedAt) / 60000);
+    } else {
+        const sign = crypto.createHash('md5').update(`${username}${apiKey}pricelist`).digest('hex');
+        let apiErr = null;
         try {
-            const r = await fetch('https://api.digiflazz.com/v1/price-list', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cmd: 'prepaid', username, sign }),
-                signal: ctrl.signal
-            });
-            const j = await r.json();
-            if (!j || !Array.isArray(j.data)) {
-                return res.status(502).json({
-                    ok: false,
-                    message: (j && j.data && j.data.message) || 'Digiflazz menolak permintaan pricelist.'
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 9000);
+            try {
+                const r = await fetch('https://api.digiflazz.com/v1/price-list', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cmd: 'prepaid', username, sign }),
+                    signal: ctrl.signal
                 });
+                const j = await r.json();
+                if (j && Array.isArray(j.data)) {
+                    // Simpan hanya field penting agar ringan di Firebase
+                    catalog = j.data.map(item => ({
+                        buyer_sku_code: item.buyer_sku_code,
+                        product_name: item.product_name,
+                        brand: item.brand,
+                        category: item.category,
+                        price: item.price,
+                        buyer_product_status: item.buyer_product_status,
+                        seller_product_status: item.seller_product_status,
+                        start_cut_off: item.start_cut_off || '',
+                        end_cut_off: item.end_cut_off || ''
+                    }));
+                    await saveFirebase('/digiflazz_catalog_cache', {
+                        updatedAt: Date.now(),
+                        items: catalog
+                    });
+                } else {
+                    apiErr = (j && j.data && j.data.message) || 'Digiflazz menolak permintaan pricelist.';
+                }
+            } finally {
+                clearTimeout(timer);
             }
-            catalog = j.data;
-        } finally {
-            clearTimeout(timer);
+        } catch (e) {
+            apiErr = 'Gagal menghubungi API Digiflazz: ' + e.message;
         }
-    } catch (e) {
-        return res.status(502).json({ ok: false, message: 'Gagal menghubungi API Digiflazz: ' + e.message });
+
+        // Jika terkena rate-limit / error tapi ada cache lama, fallback pakai cache terakhir!
+        if (!catalog) {
+            if (cached && Array.isArray(cached.items) && cached.items.length > 0) {
+                catalog = cached.items;
+                fromCache = true;
+                cacheAgeMin = Math.round((Date.now() - (cached.updatedAt || Date.now())) / 60000);
+            } else {
+                return res.status(200).json({ ok: false, rateLimited: true, message: apiErr });
+            }
+        }
     }
 
     const bySku = new Map();
@@ -277,6 +316,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
         ok: true,
+        fromCache,
+        cacheAgeMinutes: cacheAgeMin,
         checked: webProducts.length,
         brokenCount: allBroken.length,
         newlyBrokenCount: newlyBroken.length,

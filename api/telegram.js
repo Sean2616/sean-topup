@@ -80,22 +80,81 @@ async function fetchDigiflazzBalance() {
     return { ok: false, message: (j && j.data && j.data.message) || 'Gagal mengambil saldo dari Digiflazz.' };
 }
 
-async function fetchDigiflazzCatalog() {
+async function saveFirebaseJson(path, data) {
+    const url = firebaseUrl(path);
+    if (!url) return false;
+    try {
+        const r = await fetch(url, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        return r.ok;
+    } catch (e) {
+        return false;
+    }
+}
+
+async function fetchDigiflazzCatalog(forceRefresh = false) {
     const username = process.env.DIGIFLAZZ_USERNAME;
     const apiKey = process.env.DIGIFLAZZ_API_KEY;
     if (!username || !apiKey) return { ok: false, message: 'DIGIFLAZZ_USERNAME / DIGIFLAZZ_API_KEY belum dipasang di Vercel.' };
 
-    const sign = crypto.createHash('md5').update(`${username}${apiKey}pricelist`).digest('hex');
-    const r = await fetch('https://api.digiflazz.com/v1/price-list', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cmd: 'prepaid', username, sign })
-    });
-    const j = await r.json();
-    if (j && Array.isArray(j.data)) {
-        return { ok: true, list: j.data };
+    // Gunakan cache Firebase (TTL 15 menit) agar tidak kena rate-limit Digiflazz
+    const CACHE_TTL_MS = 15 * 60 * 1000;
+    const cached = await fetchFirebaseJson('/digiflazz_catalog_cache');
+    const cacheFresh = cached && Array.isArray(cached.items) && cached.items.length > 0 && (Date.now() - (cached.updatedAt || 0) < CACHE_TTL_MS);
+
+    if (!forceRefresh && cacheFresh) {
+        return {
+            ok: true,
+            list: cached.items,
+            fromCache: true,
+            cacheAgeMin: Math.round((Date.now() - cached.updatedAt) / 60000)
+        };
     }
-    return { ok: false, message: (j && j.data && j.data.message) || 'Digiflazz menolak permintaan pricelist.' };
+
+    const sign = crypto.createHash('md5').update(`${username}${apiKey}pricelist`).digest('hex');
+    let apiErr = 'Digiflazz menolak permintaan pricelist.';
+    try {
+        const r = await fetch('https://api.digiflazz.com/v1/price-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cmd: 'prepaid', username, sign })
+        });
+        const j = await r.json();
+        if (j && Array.isArray(j.data)) {
+            const slim = j.data.map(item => ({
+                buyer_sku_code: item.buyer_sku_code,
+                product_name: item.product_name,
+                brand: item.brand,
+                category: item.category,
+                price: item.price,
+                buyer_product_status: item.buyer_product_status,
+                seller_product_status: item.seller_product_status,
+                start_cut_off: item.start_cut_off || '',
+                end_cut_off: item.end_cut_off || ''
+            }));
+            await saveFirebaseJson('/digiflazz_catalog_cache', { updatedAt: Date.now(), items: slim });
+            return { ok: true, list: slim, fromCache: false, cacheAgeMin: 0 };
+        }
+        apiErr = (j && j.data && j.data.message) || apiErr;
+    } catch (e) {
+        apiErr = 'Gagal menghubungi API Digiflazz: ' + e.message;
+    }
+
+    // Jika terkena limitasi Digiflazz tapi punya cache lama, fallback pakai cache terakhir
+    if (cached && Array.isArray(cached.items) && cached.items.length > 0) {
+        return {
+            ok: true,
+            list: cached.items,
+            fromCache: true,
+            fallbackNotice: apiErr,
+            cacheAgeMin: Math.round((Date.now() - (cached.updatedAt || Date.now())) / 60000)
+        };
+    }
+
+    return { ok: false, message: apiErr };
 }
 
 async function fetchFirebaseJson(path) {
@@ -226,8 +285,9 @@ export default async function handler(req, res) {
                 await sendTelegram(chatId, `💰 <b>Saldo Digiflazz Saat Ini</b>\n\nSisa Saldo: <b>${formatRp(bal.deposit)}</b>`);
             }
         } else if (cmd === '/gangguan') {
+            const forceRef = arg.toLowerCase() === 'refresh';
             const [catRes, webProducts] = await Promise.all([
-                fetchDigiflazzCatalog(),
+                fetchDigiflazzCatalog(forceRef),
                 fetchFirebaseJson('/products')
             ]);
             if (!catRes.ok) {
@@ -256,12 +316,16 @@ export default async function handler(req, res) {
                     }
                 });
 
+                const cacheNote = catRes.fromCache
+                    ? `\n\n<i>ℹ️ Data dari cache (${catRes.cacheAgeMin} menit lalu${catRes.fallbackNotice ? ' — Digiflazz sedang limit' : ''}).</i>`
+                    : '';
+
                 if (issues.length === 0) {
-                    await sendTelegram(chatId, `✅ <b>Semua Aman!</b>\n\nSeluruh <b>${webProducts.length} produk</b> website Anda aktif normal di seller Digiflazz dan tidak ada margin rugi.`);
+                    await sendTelegram(chatId, `✅ <b>Semua Aman!</b>\n\nSeluruh <b>${webProducts.length} produk</b> website Anda aktif normal di seller Digiflazz dan tidak ada margin rugi.${cacheNote}`);
                 } else {
                     await sendTelegram(
                         chatId,
-                        `🚨 <b>Daftar Produk Bermasalah (${issues.length}/${webProducts.length})</b>\n\n` + issues.join('\n\n')
+                        `🚨 <b>Daftar Produk Bermasalah (${issues.length}/${webProducts.length})</b>\n\n` + issues.join('\n\n') + cacheNote
                     );
                 }
             }
