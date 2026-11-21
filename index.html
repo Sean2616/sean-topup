@@ -85,9 +85,15 @@
         /* Floater Hubungi CS */
         .cs-floater {
             position: fixed;
-            right: 1.25rem;
-            bottom: 1.25rem;
+            right: 0.875rem;
+            bottom: 0.875rem;
             z-index: 50;
+        }
+        @media (min-width: 640px) {
+            .cs-floater {
+                right: 1.25rem;
+                bottom: 1.25rem;
+            }
         }
         /* Saat invoice dicetak, hanya invoice yang tampil */
         @media print {
@@ -102,26 +108,26 @@
         }
     </style>
 </head>
-<body class="antialiased selection:bg-[#faae2b] selection:text-black pb-12">
+<body class="antialiased selection:bg-[#faae2b] selection:text-black pb-24 sm:pb-14">
 
     <!-- Navbar (Logo MLBB Terbaru & Tanpa Tombol Admin) -->
-    <nav class="max-w-5xl mx-auto px-4 pt-5">
-        <div class="neo-card bg-[#fff9eb] px-4 sm:px-5 py-3 flex items-center justify-between gap-2">
-            <a href="/" class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+    <nav class="max-w-5xl mx-auto px-3 sm:px-4 pt-3 sm:pt-5">
+        <div class="neo-card bg-[#fff9eb] px-3.5 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+            <a href="/" class="flex items-center gap-2 sm:gap-3 min-w-0">
                 <img src="/logo.png"
                      onerror="this.onerror=null; this.src='https://unavatar.io/x/MobileLegendsOL?fallback=https://img.utdstc.com/icon/78d/66f/78d66ff1ab122337fd6d2593774881e6f3166e0002c8856565107b7901f2b300:200';"
                      referrerpolicy="no-referrer"
                      alt="Logo MLBB Terbaru"
-                     class="w-10 h-10 sm:w-11 sm:h-11 object-cover border-2 border-black rounded-lg shadow-[2px_2px_0px_#000] bg-white shrink-0">
+                     class="w-9 h-9 sm:w-11 sm:h-11 object-cover border-2 border-black rounded-lg shadow-[2px_2px_0px_#000] bg-white shrink-0">
                 <div class="min-w-0">
-                    <span class="font-extrabold text-lg sm:text-xl tracking-tight text-black block leading-none truncate">
+                    <span class="font-extrabold text-base sm:text-xl tracking-tight text-black block leading-none truncate">
                         Sean <span class="bg-[#faae2b] px-1 border border-black rounded">TopUp</span>
                     </span>
                     <span class="font-mono-saweria text-[10px] sm:text-[11px] text-gray-600 block truncate mt-0.5">Top Up Cepat Tanpa Ribet</span>
                 </div>
             </a>
             <div class="flex items-center gap-2 shrink-0">
-                <span class="bg-[#8bd3dd] border-2 border-black px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-extrabold shadow-[2px_2px_0px_#000] flex items-center gap-1.5 whitespace-nowrap">
+                <span class="bg-[#8bd3dd] border-2 border-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold shadow-[2px_2px_0px_#000] flex items-center gap-1.5 whitespace-nowrap">
                     <span class="w-2 h-2 bg-emerald-600 border border-black rounded-full animate-ping shrink-0"></span> Online 24 Jam
                 </span>
             </div>
@@ -129,147 +135,155 @@
     </nav>
 
     <!-- Header Banner dengan Logo Game Mobile Legends Terbaru -->
-    <header class="max-w-5xl mx-auto px-4 mt-6">
-        <div class="neo-card bg-[#faae2b] p-6 sm:p-8 relative overflow-hidden">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
-                <div class="flex items-center gap-4">
-                    <img src="/logo.png"
-                         onerror="this.onerror=null; this.src='https://unavatar.io/x/MobileLegendsOL?fallback=https://img.utdstc.com/icon/78d/66f/78d66ff1ab122337fd6d2593774881e6f3166e0002c8856565107b7901f2b300:200';"
-                         referrerpolicy="no-referrer"
-                         alt="Mobile Legends Terbaru"
-                         class="w-20 h-20 sm:w-24 sm:h-24 object-cover bg-white rounded-2xl border-[3px] border-black shadow-[4px_4px_0px_#000]">
-                    <div>
-                        <div class="flex flex-wrap gap-2 mb-1.5">
-                            <span class="bg-white border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-mono-saweria font-bold shadow-[2px_2px_0px_#000]">
-                                ⚡ OTOMATIS 24 JAM
-                            </span>
-                            <span class="bg-[#f582ae] border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-mono-saweria font-bold shadow-[2px_2px_0px_#000]">
-                                🇮🇩 REGION INDONESIA
-                            </span>
-                        </div>
-                        <h1 class="text-2xl sm:text-4xl font-extrabold text-black leading-tight">Mobile Legends: Bang Bang</h1>
-                        <p class="text-sm font-medium text-black/80 mt-1">Isi Diamond & Weekly Diamond Pass khusus akun Region Indonesia!</p>
+    <header class="max-w-5xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6">
+        <div class="neo-card bg-[#faae2b] p-4 sm:p-8 relative overflow-hidden">
+            <div class="flex items-center gap-3.5 sm:gap-5 relative z-10">
+                <img src="/logo.png"
+                     onerror="this.onerror=null; this.src='https://unavatar.io/x/MobileLegendsOL?fallback=https://img.utdstc.com/icon/78d/66f/78d66ff1ab122337fd6d2593774881e6f3166e0002c8856565107b7901f2b300:200';"
+                     referrerpolicy="no-referrer"
+                     alt="Mobile Legends Terbaru"
+                     class="w-16 h-16 sm:w-24 sm:h-24 object-cover bg-white rounded-2xl border-[3px] border-black shadow-[4px_4px_0px_#000] shrink-0">
+                <div class="min-w-0">
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-1.5">
+                        <span class="bg-white border-2 border-black px-2 sm:px-2.5 py-0.5 rounded-md text-[10px] sm:text-xs font-mono-saweria font-bold shadow-[2px_2px_0px_#000] whitespace-nowrap">
+                            ⚡ OTOMATIS 24 JAM
+                        </span>
+                        <span class="bg-[#f582ae] border-2 border-black px-2 sm:px-2.5 py-0.5 rounded-md text-[10px] sm:text-xs font-mono-saweria font-bold shadow-[2px_2px_0px_#000] whitespace-nowrap">
+                            🇮🇩 REGION INDONESIA
+                        </span>
                     </div>
+                    <h1 class="text-lg sm:text-4xl font-extrabold text-black leading-tight">Mobile Legends: Bang Bang</h1>
+                    <p class="text-xs sm:text-sm font-medium text-black/80 mt-0.5 sm:mt-1 leading-snug">Isi Diamond &amp; Weekly Diamond Pass khusus akun Region Indonesia!</p>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-5xl mx-auto px-4 mt-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <main class="max-w-5xl mx-auto px-3 sm:px-4 mt-4 sm:mt-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
             
-            <!-- Kolom Kiri -->
+            <!-- Kolom Kiri (Di Mobile bisa dilipat/ringkas agar Step 1 langsung terlihat; di Desktop selalu terbuka) -->
             <div class="lg:col-span-1">
-                <div class="neo-card bg-[#fff9eb] p-6 sticky top-6">
-                    <div class="bg-[#f582ae] border-2 border-black px-3 py-1.5 rounded-lg inline-block font-extrabold text-sm shadow-[3px_3px_0px_#000] mb-4">
-                        📌 CARA TOP UP
-                    </div>
-                    <ol class="list-decimal list-inside text-sm text-gray-800 space-y-3 font-medium">
-                        <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
-                            Ketik <b>User ID</b> & <b>Zone ID</b> akun MLBB (Khusus Region Indonesia 🇮🇩).
-                        </li>
-                        <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
-                            Pilih <b>Weekly Diamond Pass</b> atau <b>Diamond</b>.
-                        </li>
-                        <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
-                            Pilih metode bayar <b>QRIS GoPay Merchant</b>.
-                        </li>
-                        <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
-                            Masukkan nomor <b>WhatsApp</b> lalu klik <b>Beli Sekarang!</b>
-                        </li>
-                    </ol>
-                    <div class="mt-5 p-3 bg-[#faae2b]/30 border-2 border-black rounded-xl text-xs font-bold">
-                        ⚠️ <b>Perhatian:</b> Produk ini hanya berlaku untuk akun MLBB <b>Server/Region Indonesia</b>. Akun server luar (PH/MY/RU/BR) tidak dapat diproses.
+                <div class="neo-card bg-[#fff9eb] p-4 sm:p-6 lg:sticky lg:top-6">
+                    <button type="button" onclick="toggleCaraTopupMobile()" class="w-full flex items-center justify-between lg:cursor-default text-left">
+                        <span class="bg-[#f582ae] border-2 border-black px-3 py-1 rounded-lg inline-block font-extrabold text-xs sm:text-sm shadow-[3px_3px_0px_#000]">
+                            📌 CARA TOP UP
+                        </span>
+                        <span id="caraTopupToggleIcon" class="lg:hidden bg-white border-2 border-black px-2 py-0.5 rounded-md text-[11px] font-extrabold shadow-[2px_2px_0px_#000]">
+                            Lihat ▼
+                        </span>
+                    </button>
+                    <div id="caraTopupBody" class="hidden lg:block mt-4">
+                        <ol class="list-decimal list-inside text-xs sm:text-sm text-gray-800 space-y-2.5 sm:space-y-3 font-medium">
+                            <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
+                                Ketik <b>User ID</b> &amp; <b>Zone ID</b> akun MLBB (Khusus Region Indonesia 🇮🇩).
+                            </li>
+                            <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
+                                Pilih <b>Weekly Diamond Pass</b> atau <b>Diamond</b>.
+                            </li>
+                            <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
+                                Pilih metode bayar <b>QRIS GoPay Merchant</b>.
+                            </li>
+                            <li class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_#000]">
+                                Masukkan nomor <b>WhatsApp</b> lalu klik <b>Beli Sekarang!</b>
+                            </li>
+                        </ol>
+                        <div class="mt-4 p-2.5 sm:p-3 bg-[#faae2b]/30 border-2 border-black rounded-xl text-[11px] sm:text-xs font-bold leading-relaxed">
+                            ⚠️ <b>Perhatian:</b> Produk ini hanya berlaku untuk akun MLBB <b>Server/Region Indonesia</b>. Akun server luar (PH/MY/RU/BR) tidak dapat diproses.
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Kolom Kanan -->
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-4 sm:space-y-6">
                 
                 <!-- STEP 1 -->
-                <div class="neo-card p-6">
-                    <div class="flex items-center justify-between mb-5">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-[#faae2b] border-2 border-black font-mono-saweria font-bold rounded-lg w-9 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-lg">1</div>
-                            <h3 class="text-lg font-extrabold">Masukkan Data Akun MLBB</h3>
+                <div class="neo-card p-4 sm:p-6">
+                    <div class="flex items-center justify-between gap-2 mb-4 sm:mb-5">
+                        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                            <div class="bg-[#faae2b] border-2 border-black font-mono-saweria font-bold rounded-lg w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-base sm:text-lg shrink-0">1</div>
+                            <h3 class="text-base sm:text-lg font-extrabold leading-tight">Masukkan Data Akun MLBB</h3>
                         </div>
-                        <span class="text-xs font-bold bg-[#fff9eb] border-2 border-black px-2.5 py-1 rounded-lg">🇮🇩 ID Only</span>
+                        <span class="text-[11px] sm:text-xs font-bold bg-[#fff9eb] border-2 border-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg whitespace-nowrap shrink-0">🇮🇩 ID Only</span>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3 sm:gap-4">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">User ID :</label>
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="userId" placeholder="Contoh: 12345678" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
+                            <label class="block text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-1.5">User ID :</label>
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="userId" placeholder="12345678" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input w-full px-3 sm:px-4 py-2.5 text-sm font-bold">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">Zone ID (4-5 Digit) :</label>
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="zoneId" placeholder="Contoh: 1234" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
+                            <label class="block text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-1.5">Zone ID :</label>
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="zoneId" placeholder="1234" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input w-full px-3 sm:px-4 py-2.5 text-sm font-bold">
                         </div>
                     </div>
-                    <p class="text-xs text-red-600 mt-3 font-bold">
-                        *Pastikan akun MLBB kamu berstatus Region Indonesia 🇮🇩.
+                    <p class="text-[11px] sm:text-xs text-red-600 mt-2.5 sm:mt-3 font-bold">
+                        *Pastikan akun MLBB kamu berstatus Region Indonesia 🇮🇩 (Zone ID 4–5 digit).
                     </p>
                 </div>
 
                 <!-- STEP 2 -->
-                <div class="neo-card p-6">
-                    <div class="flex items-center gap-3 mb-5">
-                        <div class="bg-[#8bd3dd] border-2 border-black font-mono-saweria font-bold rounded-lg w-9 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-lg">2</div>
-                        <h3 class="text-lg font-extrabold">Pilih Nominal Top Up</h3>
+                <div class="neo-card p-4 sm:p-6">
+                    <div class="flex items-center gap-2.5 sm:gap-3 mb-4 sm:mb-5">
+                        <div class="bg-[#8bd3dd] border-2 border-black font-mono-saweria font-bold rounded-lg w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-base sm:text-lg shrink-0">2</div>
+                        <h3 class="text-base sm:text-lg font-extrabold">Pilih Nominal Top Up</h3>
                     </div>
 
                     <!-- Kategori: Weekly Diamond Pass -->
-                    <div id="specialSection" class="mb-6 hidden">
-                        <div class="inline-block bg-[#f582ae] border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-extrabold mb-3 shadow-[2px_2px_0px_#000]">
+                    <div id="specialSection" class="mb-5 sm:mb-6 hidden">
+                        <div class="inline-block bg-[#f582ae] border-2 border-black px-2.5 py-0.5 rounded-md text-[11px] sm:text-xs font-extrabold mb-3 shadow-[2px_2px_0px_#000]">
                             ⭐ WEEKLY DIAMOND PASS
                         </div>
-                        <div id="specialGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
+                        <div id="specialGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5"></div>
                     </div>
 
                     <!-- Kategori: Top Up Diamond Instan -->
                     <div>
-                        <div class="inline-block bg-[#faae2b] border-2 border-black px-2.5 py-0.5 rounded-md text-xs font-extrabold mb-3 shadow-[2px_2px_0px_#000]">
+                        <div class="inline-block bg-[#faae2b] border-2 border-black px-2.5 py-0.5 rounded-md text-[11px] sm:text-xs font-extrabold mb-3 shadow-[2px_2px_0px_#000]">
                             💎 TOP UP DIAMOND INSTAN
                         </div>
-                        <div id="diamondGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
+                        <div id="diamondGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5"></div>
                     </div>
                 </div>
 
                 <!-- STEP 3 -->
-                <div class="neo-card p-6">
-                    <div class="flex items-center gap-3 mb-5">
-                        <div class="bg-[#f582ae] border-2 border-black font-mono-saweria font-bold rounded-lg w-9 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-lg">3</div>
-                        <h3 class="text-lg font-extrabold">Pilih Metode Pembayaran</h3>
+                <div class="neo-card p-4 sm:p-6">
+                    <div class="flex items-center gap-2.5 sm:gap-3 mb-4 sm:mb-5">
+                        <div class="bg-[#f582ae] border-2 border-black font-mono-saweria font-bold rounded-lg w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-base sm:text-lg shrink-0">3</div>
+                        <h3 class="text-base sm:text-lg font-extrabold">Pilih Metode Pembayaran</h3>
                     </div>
 
                     <div class="space-y-3">
-                        <div class="payment-card neo-box relative cursor-pointer bg-[#fff9eb] p-4 hover:bg-[#faae2b]/30 flex items-center justify-between" onclick="selectPayment(this, 'QRIS GoPay Merchant')">
-                            <div class="flex items-center gap-4">
-                                <div class="bg-white border-2 border-black px-3 py-2 rounded-lg shadow-[2px_2px_0px_#000]">
-                                    <span class="font-mono-saweria font-bold text-sm text-black">QRIS</span>
+                        <div class="payment-card neo-box relative cursor-pointer bg-[#fff9eb] p-3.5 sm:p-4 hover:bg-[#faae2b]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3" onclick="selectPayment(this, 'QRIS GoPay Merchant')">
+                            <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                                <div class="bg-white border-2 border-black px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-[2px_2px_0px_#000] shrink-0">
+                                    <span class="font-mono-saweria font-bold text-xs sm:text-sm text-black">QRIS</span>
                                 </div>
-                                <div>
-                                    <h4 class="font-extrabold text-sm text-black">QRIS Dinamis (GoPay Merchant)</h4>
-                                    <p class="text-xs text-gray-700 font-medium">Bisa GoPay, DANA, OVO, ShopeePay, BCA, BRI, Mandiri, dll</p>
+                                <div class="min-w-0">
+                                    <h4 class="font-extrabold text-xs sm:text-sm text-black leading-snug">QRIS Dinamis (GoPay Merchant)</h4>
+                                    <p class="text-[11px] sm:text-xs text-gray-700 font-medium leading-snug mt-0.5">Bisa GoPay, DANA, OVO, ShopeePay, BCA, BRI, Mandiri, dll</p>
                                 </div>
                             </div>
-                            <span class="price-display font-mono-saweria font-bold text-sm bg-white border-2 border-black px-2.5 py-1 rounded-md shadow-[2px_2px_0px_#000]">Rp 0</span>
+                            <div class="flex items-center justify-between sm:justify-end border-t sm:border-t-0 border-dashed border-black/20 pt-2 sm:pt-0 shrink-0">
+                                <span class="sm:hidden text-[11px] font-bold text-gray-600">Total Bayar:</span>
+                                <span class="price-display font-mono-saweria font-bold text-xs sm:text-sm bg-white border-2 border-black px-2.5 py-1 rounded-md shadow-[2px_2px_0px_#000] whitespace-nowrap">Rp 0</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- STEP 4 -->
-                <div class="neo-card p-6">
-                    <div class="flex items-center gap-3 mb-5">
-                        <div class="bg-[#a78bfa] border-2 border-black font-mono-saweria font-bold rounded-lg w-9 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-lg">4</div>
-                        <h3 class="text-lg font-extrabold">Konfirmasi & Bayar</h3>
+                <div class="neo-card p-4 sm:p-6">
+                    <div class="flex items-center gap-2.5 sm:gap-3 mb-4 sm:mb-5">
+                        <div class="bg-[#a78bfa] border-2 border-black font-mono-saweria font-bold rounded-lg w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-base sm:text-lg shrink-0">4</div>
+                        <h3 class="text-base sm:text-lg font-extrabold">Konfirmasi &amp; Bayar</h3>
                     </div>
-                    <div class="mb-5">
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">Nomor WhatsApp Indonesia (08xx) :</label>
-                        <input type="tel" inputmode="numeric" id="whatsapp" placeholder="Contoh: 081234567890" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
+                    <div class="mb-4 sm:mb-5">
+                        <label class="block text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-1.5">Nomor WhatsApp Indonesia (08xx) :</label>
+                        <input type="tel" inputmode="numeric" id="whatsapp" placeholder="Contoh: 081234567890" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input w-full px-3.5 sm:px-4 py-2.5 text-sm font-bold">
                     </div>
-                    <button id="btnSubmit" onclick="processOrder()" class="neo-btn w-full bg-[#faae2b] hover:bg-[#f5a00d] text-black font-extrabold py-4 text-base flex items-center justify-center gap-2">
+                    <button id="btnSubmit" onclick="processOrder()" class="neo-btn w-full bg-[#faae2b] hover:bg-[#f5a00d] text-black font-extrabold py-3.5 sm:py-4 text-sm sm:text-base flex items-center justify-center gap-2">
                         <i class="fa-solid fa-paper-plane"></i> BELI SEKARANG!
                     </button>
                 </div>
@@ -279,21 +293,21 @@
     </main>
 
     <!-- INVOICE SETELAH ORDER -->
-    <section id="invoiceSection" class="max-w-5xl mx-auto px-4 mt-8 hidden">
-        <div class="neo-card p-6">
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="bg-[#faae2b] border-2 border-black font-mono-saweria font-bold rounded-lg px-3 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-sm">INVOICE</div>
+    <section id="invoiceSection" class="max-w-5xl mx-auto px-3 sm:px-4 mt-5 sm:mt-8 hidden">
+        <div class="neo-card p-4 sm:p-6">
+            <div class="flex flex-wrap items-center justify-between gap-2.5 mb-4 sm:mb-5">
+                <div class="flex items-center gap-2.5 sm:gap-3">
+                    <div class="bg-[#faae2b] border-2 border-black font-mono-saweria font-bold rounded-lg px-2.5 sm:px-3 h-8 sm:h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-xs sm:text-sm">INVOICE</div>
                     <div>
-                        <p class="font-mono-saweria font-bold text-sm" id="invInvoiceId">-</p>
-                        <p class="text-xs text-gray-600 font-medium" id="invoiceDate">-</p>
+                        <p class="font-mono-saweria font-bold text-xs sm:text-sm" id="invInvoiceId">-</p>
+                        <p class="text-[11px] sm:text-xs text-gray-600 font-medium" id="invoiceDate">-</p>
                     </div>
                 </div>
-                <span id="invoiceStatus" class="bg-[#faae2b] border-2 border-black px-3 py-1 rounded-lg text-xs font-extrabold shadow-[2px_2px_0px_#000] font-mono-saweria">MENUNGGU PEMBAYARAN</span>
+                <span id="invoiceStatus" class="bg-[#faae2b] border-2 border-black px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-extrabold shadow-[2px_2px_0px_#000] font-mono-saweria">MENUNGGU PEMBAYARAN</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div class="text-sm space-y-2 font-medium text-black">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                <div class="text-xs sm:text-sm space-y-2 font-medium text-black">
                     <div class="flex justify-between gap-3"><span class="text-gray-600">Nickname:</span> <span class="font-extrabold text-right" id="invNickname">-</span></div>
                     <div class="flex justify-between gap-3"><span class="text-gray-600">ID MLBB:</span> <span class="font-bold text-right" id="invId">-</span></div>
                     <div class="flex justify-between gap-3"><span class="text-gray-600">Item:</span> <span class="font-extrabold text-right" id="invItem">-</span></div>
@@ -301,16 +315,16 @@
                     <hr class="border-black border-dashed my-2">
                     <div class="flex justify-between gap-3"><span class="text-gray-600">Harga Item:</span> <span class="font-bold font-mono-saweria" id="invPrice">-</span></div>
                     <div class="flex justify-between gap-3"><span class="text-gray-600">Kode Unik:</span> <span class="font-bold font-mono-saweria" id="invUnique">-</span></div>
-                    <div class="flex justify-between gap-3 text-base"><span class="font-bold">Total Bayar:</span> <span class="font-mono-saweria font-bold bg-[#faae2b] px-2 rounded border border-black" id="invTotal">-</span></div>
-                    <p class="text-xs text-gray-600 font-medium pt-2">Bayar dengan nominal yang persis sama, termasuk kode unik, supaya pembayaran terdeteksi otomatis. Simpan ID invoice ini untuk komplain atau pengecekan.</p>
+                    <div class="flex justify-between gap-3 text-sm sm:text-base"><span class="font-bold">Total Bayar:</span> <span class="font-mono-saweria font-bold bg-[#faae2b] px-2 rounded border border-black" id="invTotal">-</span></div>
+                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium pt-2">Bayar dengan nominal yang persis sama, termasuk kode unik, supaya pembayaran terdeteksi otomatis. Simpan ID invoice ini untuk komplain atau pengecekan.</p>
                 </div>
 
                 <div class="text-center">
                     <div id="invQrWrap" class="bg-white p-3 rounded-xl inline-block border-[3px] border-black shadow-[4px_4px_0px_#000]">
-                        <img id="invQrImg" src="" alt="QRIS" class="w-48 h-48 mx-auto">
+                        <img id="invQrImg" src="" alt="QRIS" class="w-44 h-44 sm:w-48 sm:h-48 mx-auto">
                     </div>
                     <p class="text-xs text-gray-600 font-bold mt-3">Total Bayar (Otomatis Muncul Saat Scan):</p>
-                    <p class="text-xl font-mono-saweria font-bold text-black bg-[#faae2b] inline-block px-3 py-0.5 rounded border border-black mt-1" id="invTotalBig">-</p>
+                    <p class="text-lg sm:text-xl font-mono-saweria font-bold text-black bg-[#faae2b] inline-block px-3 py-0.5 rounded border border-black mt-1" id="invTotalBig">-</p>
                     <div id="invoiceWaiting" class="flex items-center justify-center gap-2 text-xs font-bold text-black pt-3">
                         <i class="fa-solid fa-spinner fa-spin"></i> <span id="invoiceWaitingText">Menunggu pembayaran kamu...</span>
                     </div>
@@ -320,47 +334,47 @@
                 </div>
             </div>
 
-            <div class="no-print flex flex-wrap gap-3 mt-6">
-                <button onclick="copyInvoiceId()" class="neo-btn bg-white text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-regular fa-copy"></i> Salin ID Invoice</button>
-                <button onclick="copyTotal()" class="neo-btn bg-white text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-regular fa-copy"></i> Salin Total</button>
-                <button onclick="printInvoice()" class="neo-btn bg-[#8bd3dd] text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-solid fa-print"></i> Cetak Invoice</button>
-                <button onclick="openCsChat(event)" class="neo-btn bg-[#25D366] text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-brands fa-whatsapp"></i> Hubungi CS</button>
-                <button onclick="newOrder()" class="neo-btn bg-[#faae2b] text-black font-extrabold px-4 py-2.5 text-sm flex items-center gap-2"><i class="fa-solid fa-rotate-left"></i> Pesanan Baru</button>
+            <div class="no-print grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5 sm:gap-3 mt-5 sm:mt-6">
+                <button onclick="copyInvoiceId()" class="neo-btn bg-white text-black font-extrabold px-3 sm:px-4 py-2.5 text-xs sm:text-sm flex items-center justify-center gap-1.5"><i class="fa-regular fa-copy"></i> Salin ID</button>
+                <button onclick="copyTotal()" class="neo-btn bg-white text-black font-extrabold px-3 sm:px-4 py-2.5 text-xs sm:text-sm flex items-center justify-center gap-1.5"><i class="fa-regular fa-copy"></i> Salin Total</button>
+                <button onclick="printInvoice()" class="neo-btn bg-[#8bd3dd] text-black font-extrabold px-3 sm:px-4 py-2.5 text-xs sm:text-sm flex items-center justify-center gap-1.5"><i class="fa-solid fa-print"></i> Cetak</button>
+                <button onclick="openCsChat(event)" class="neo-btn bg-[#25D366] text-black font-extrabold px-3 sm:px-4 py-2.5 text-xs sm:text-sm flex items-center justify-center gap-1.5"><i class="fa-brands fa-whatsapp"></i> Hubungi CS</button>
+                <button onclick="newOrder()" class="col-span-2 sm:col-span-1 neo-btn bg-[#faae2b] text-black font-extrabold px-3 sm:px-4 py-2.5 text-xs sm:text-sm flex items-center justify-center gap-1.5"><i class="fa-solid fa-rotate-left"></i> Pesanan Baru</button>
             </div>
         </div>
     </section>
 
     <!-- RIWAYAT PESANAN -->
-    <section id="historySection" class="max-w-5xl mx-auto px-4 mt-8">
-        <div class="neo-card p-6">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="bg-[#8bd3dd] border-2 border-black rounded-lg w-9 h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-base"><i class="fa-solid fa-receipt"></i></div>
-                <h3 class="text-lg font-extrabold">Riwayat Pesanan</h3>
+    <section id="historySection" class="max-w-5xl mx-auto px-3 sm:px-4 mt-5 sm:mt-8">
+        <div class="neo-card p-4 sm:p-6">
+            <div class="flex items-center gap-2.5 sm:gap-3 mb-2">
+                <div class="bg-[#8bd3dd] border-2 border-black rounded-lg w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-[3px_3px_0px_#000] text-sm sm:text-base shrink-0"><i class="fa-solid fa-receipt"></i></div>
+                <h3 class="text-base sm:text-lg font-extrabold">Riwayat Pesanan</h3>
             </div>
-            <p class="text-sm text-gray-700 font-medium mb-4">Masukkan nomor WhatsApp yang dipakai saat order untuk melihat pesanan kamu.</p>
-            <div class="flex flex-col sm:flex-row gap-3">
-                <input type="tel" inputmode="numeric" id="historyWa" placeholder="Contoh: 081234567890" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input flex-1 px-4 py-2.5 text-sm font-bold">
+            <p class="text-xs sm:text-sm text-gray-700 font-medium mb-3.5 sm:mb-4">Masukkan nomor WhatsApp yang dipakai saat order untuk melihat pesanan kamu.</p>
+            <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
+                <input type="tel" inputmode="numeric" id="historyWa" placeholder="Contoh: 081234567890" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input flex-1 px-3.5 sm:px-4 py-2.5 text-sm font-bold">
                 <button onclick="fetchHistory()" class="neo-btn bg-[#8bd3dd] text-black font-extrabold px-5 py-2.5 text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Lihat Riwayat</button>
             </div>
             <div id="historyLoading" class="hidden flex items-center gap-2 text-sm font-bold text-black pt-4">
                 <i class="fa-solid fa-spinner fa-spin"></i> Memuat riwayat...
             </div>
             <div id="historyResults" class="space-y-3 mt-4"></div>
-            <p id="historyEmpty" class="hidden text-sm font-bold text-gray-600 pt-4">Belum ada pesanan untuk nomor ini. Riwayat hanya menampilkan pesanan yang dibuat setelah fitur ini aktif.</p>
+            <p id="historyEmpty" class="hidden text-xs sm:text-sm font-bold text-gray-600 pt-4">Belum ada pesanan untuk nomor ini. Riwayat hanya menampilkan pesanan yang dibuat setelah fitur ini aktif.</p>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="max-w-5xl mx-auto px-4 mt-12">
-        <div class="neo-card bg-white p-5 text-center font-mono-saweria text-xs">
+    <footer class="max-w-5xl mx-auto px-3 sm:px-4 mt-6 sm:mt-12">
+        <div class="neo-card bg-white p-4 sm:p-5 text-center font-mono-saweria text-[11px] sm:text-xs">
             <p class="font-bold">Dibuat oleh <b>Sean Top Up</b> &copy; 2026</p>
             <p class="text-gray-600 mt-1">Layanan Top Up Khusus Region Indonesia 🇮🇩</p>
         </div>
     </footer>
 
-    <!-- Floater Hubungi CS -->
-    <a id="csFloater" href="#" onclick="return openCsChat(event)" class="cs-floater neo-btn no-print bg-[#25D366] text-black font-extrabold px-4 py-3 flex items-center gap-2 text-sm" aria-label="Hubungi CS lewat WhatsApp">
-        <i class="fa-brands fa-whatsapp text-xl"></i><span>Hubungi CS</span>
+    <!-- Floater Hubungi CS (Ringkas di Mobile agar tidak menutupi tombol/kartu) -->
+    <a id="csFloater" href="#" onclick="return openCsChat(event)" class="cs-floater neo-btn no-print bg-[#25D366] text-black font-extrabold px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm" aria-label="Hubungi CS lewat WhatsApp">
+        <i class="fa-brands fa-whatsapp text-lg sm:text-xl"></i><span>CS WA</span><span class="hidden sm:inline">• Bantuan</span>
     </a>
 
     <script>
@@ -383,6 +397,15 @@
             { id: 6, name: '706 Diamonds', price: 165000, sku: 'ML706', category: 'diamond' },
             { id: 7, name: '2195 Diamonds', price: 495000, sku: 'ML2195', category: 'diamond' }
         ];
+
+        function toggleCaraTopupMobile() {
+            if (window.innerWidth >= 1024) return;
+            const body = document.getElementById('caraTopupBody');
+            const icon = document.getElementById('caraTopupToggleIcon');
+            if (!body || !icon) return;
+            const isHidden = body.classList.toggle('hidden');
+            icon.textContent = isHidden ? 'Lihat ▼' : 'Tutup ▲';
+        }
 
         function formatRupiah(angka) {
             return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
