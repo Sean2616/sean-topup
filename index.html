@@ -106,23 +106,23 @@
 
     <!-- Navbar (Logo MLBB Terbaru & Tanpa Tombol Admin) -->
     <nav class="max-w-5xl mx-auto px-4 pt-5">
-        <div class="neo-card bg-[#fff9eb] px-5 py-3.5 flex items-center justify-between">
-            <a href="/" class="flex items-center gap-3">
+        <div class="neo-card bg-[#fff9eb] px-4 sm:px-5 py-3 flex items-center justify-between gap-2">
+            <a href="/" class="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <img src="/logo.png"
                      onerror="this.onerror=null; this.src='https://unavatar.io/x/MobileLegendsOL?fallback=https://img.utdstc.com/icon/78d/66f/78d66ff1ab122337fd6d2593774881e6f3166e0002c8856565107b7901f2b300:200';"
                      referrerpolicy="no-referrer"
                      alt="Logo MLBB Terbaru"
-                     class="w-11 h-11 object-cover border-2 border-black rounded-lg shadow-[2px_2px_0px_#000] bg-white">
-                <div>
-                    <span class="font-extrabold text-xl tracking-tight text-black block leading-none">
+                     class="w-10 h-10 sm:w-11 sm:h-11 object-cover border-2 border-black rounded-lg shadow-[2px_2px_0px_#000] bg-white shrink-0">
+                <div class="min-w-0">
+                    <span class="font-extrabold text-lg sm:text-xl tracking-tight text-black block leading-none truncate">
                         Sean <span class="bg-[#faae2b] px-1 border border-black rounded">TopUp</span>
                     </span>
-                    <span class="font-mono-saweria text-[11px] text-gray-600">Top Up Cepat Tanpa Ribet</span>
+                    <span class="font-mono-saweria text-[10px] sm:text-[11px] text-gray-600 block truncate mt-0.5">Top Up Cepat Tanpa Ribet</span>
                 </div>
             </a>
-            <div class="flex items-center gap-2">
-                <span class="bg-[#8bd3dd] border-2 border-black px-3 py-1.5 rounded-lg text-xs font-extrabold shadow-[2px_2px_0px_#000] flex items-center gap-1.5">
-                    <span class="w-2 h-2 bg-emerald-600 rounded-full animate-ping"></span> Online 24 Jam
+            <div class="flex items-center gap-2 shrink-0">
+                <span class="bg-[#8bd3dd] border-2 border-black px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-extrabold shadow-[2px_2px_0px_#000] flex items-center gap-1.5 whitespace-nowrap">
+                    <span class="w-2 h-2 bg-emerald-600 border border-black rounded-full animate-ping shrink-0"></span> Online 24 Jam
                 </span>
             </div>
         </div>
@@ -200,11 +200,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">User ID :</label>
-                            <input type="number" id="userId" placeholder="Contoh: 12345678" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="userId" placeholder="Contoh: 12345678" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">Zone ID (4-5 Digit) :</label>
-                            <input type="number" id="zoneId" placeholder="Contoh: 1234" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="zoneId" placeholder="Contoh: 1234" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
                         </div>
                     </div>
                     <p class="text-xs text-red-600 mt-3 font-bold">
@@ -267,7 +267,7 @@
                     </div>
                     <div class="mb-5">
                         <label class="block text-xs font-bold uppercase tracking-wider mb-1.5">Nomor WhatsApp Indonesia (08xx) :</label>
-                        <input type="number" id="whatsapp" placeholder="Contoh: 081234567890" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
+                        <input type="tel" inputmode="numeric" id="whatsapp" placeholder="Contoh: 081234567890" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input w-full px-4 py-2.5 text-sm font-bold">
                     </div>
                     <button id="btnSubmit" onclick="processOrder()" class="neo-btn w-full bg-[#faae2b] hover:bg-[#f5a00d] text-black font-extrabold py-4 text-base flex items-center justify-center gap-2">
                         <i class="fa-solid fa-paper-plane"></i> BELI SEKARANG!
@@ -339,7 +339,7 @@
             </div>
             <p class="text-sm text-gray-700 font-medium mb-4">Masukkan nomor WhatsApp yang dipakai saat order untuk melihat pesanan kamu.</p>
             <div class="flex flex-col sm:flex-row gap-3">
-                <input type="number" id="historyWa" placeholder="Contoh: 081234567890" class="neo-input flex-1 px-4 py-2.5 text-sm font-bold">
+                <input type="tel" inputmode="numeric" id="historyWa" placeholder="Contoh: 081234567890" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="neo-input flex-1 px-4 py-2.5 text-sm font-bold">
                 <button onclick="fetchHistory()" class="neo-btn bg-[#8bd3dd] text-black font-extrabold px-5 py-2.5 text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Lihat Riwayat</button>
             </div>
             <div id="historyLoading" class="hidden flex items-center gap-2 text-sm font-bold text-black pt-4">

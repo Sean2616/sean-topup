@@ -350,18 +350,19 @@
                         ? `<span class="bg-[#8bd3dd] border border-black px-2 py-0.5 rounded text-xs font-extrabold">Terkirim</span><br><span class="text-xs text-gray-500">${escHtml(digiMessage(o))}</span>`
                         : `<span class="bg-[#f582ae] border border-black px-2 py-0.5 rounded text-xs font-extrabold">Gagal</span><br><span class="text-xs text-gray-500">${escHtml(digiMessage(o))}</span>`;
 
+                const safeInv = escHtml(o.invoiceId).replace(/'/g, "\\'");
                 const btnAction = o.status === 'PENDING'
-                    ? `<button onclick="approveOrder(${o.totalPrice})" class="neo-btn bg-[#8bd3dd] text-black font-extrabold px-3 py-1 text-xs">Proses Digiflazz</button>`
+                    ? `<button onclick="approveOrder('${safeInv}', ${o.totalPrice})" class="neo-btn bg-[#8bd3dd] text-black font-extrabold px-3 py-1 text-xs">Proses Digiflazz</button>`
                     : outcome === 'FAILED'
-                        ? `<button onclick="approveOrder(${o.totalPrice})" class="neo-btn bg-[#faae2b] text-black font-extrabold px-3 py-1 text-xs">Kirim Ulang</button>`
+                        ? `<button onclick="approveOrder('${safeInv}', ${o.totalPrice})" class="neo-btn bg-[#faae2b] text-black font-extrabold px-3 py-1 text-xs">Kirim Ulang</button>`
                         : `<span class="text-xs font-bold text-gray-500">Selesai ✓</span>`;
 
                 tbody.innerHTML += `
                     <tr class="border-b border-gray-200">
-                        <td class="py-3 px-2 font-mono-saweria font-bold text-xs">${o.invoiceId}</td>
-                        <td class="py-3 px-2 font-bold">${o.nickname} <br><span class="text-xs text-gray-500">${o.userId} (${o.zoneId})</span></td>
-                        <td class="py-3 px-2 font-bold">${o.item} <span class="text-xs font-mono-saweria">[${o.sku}]</span></td>
-                        <td class="py-3 px-2 font-mono-saweria font-bold">Rp ${o.totalPrice.toLocaleString('id-ID')}</td>
+                        <td class="py-3 px-2 font-mono-saweria font-bold text-xs">${escHtml(o.invoiceId)}</td>
+                        <td class="py-3 px-2 font-bold">${escHtml(o.nickname || '-')} <br><span class="text-xs text-gray-500">${escHtml(o.userId)} (${escHtml(o.zoneId)})</span></td>
+                        <td class="py-3 px-2 font-bold">${escHtml(o.item)} <span class="text-xs font-mono-saweria">[${escHtml(o.sku)}]</span></td>
+                        <td class="py-3 px-2 font-mono-saweria font-bold">Rp ${Number(o.totalPrice || 0).toLocaleString('id-ID')}</td>
                         <td class="py-3 px-2">${badge}</td>
                         <td class="py-3 px-2">${digiCell}</td>
                         <td class="py-3 px-2 text-center">${btnAction}</td>
@@ -370,11 +371,11 @@
             });
         }
 
-        async function approveOrder(totalPrice) {
+        async function approveOrder(invoiceId, totalPrice) {
             const res = await fetch('/api/order?action=approve', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: adminPassword, totalPrice })
+                body: JSON.stringify({ password: adminPassword, invoiceId, totalPrice })
             });
             const data = await res.json();
             Swal.fire({ icon: data.success ? 'success' : 'error', title: data.success ? 'Diproses!' : 'Digiflazz Gagal!', text: data.message, confirmButtonColor: '#faae2b' });
