@@ -147,6 +147,7 @@ function helpMessage() {
         ``,
         `Perintah yang tersedia:`,
         `• /saldo — Cek sisa saldo Digiflazz`,
+        `• /gangguan — Cek produk yang sedang bermasalah / seller trouble / rugi`,
         `• /produk — Cek semua SKU web vs status &amp; harga modal Digiflazz`,
         `• /cek <code>SKU</code> — Cek detail 1 SKU di Digiflazz (cth: <code>/cek WDP</code>)`,
         `• /cari <code>KATA</code> — Cari produk di katalog Digiflazz (cth: <code>/cari mobile legends</code>)`,
@@ -223,6 +224,46 @@ export default async function handler(req, res) {
                 await sendTelegram(chatId, `❌ <b>Gagal cek saldo Digiflazz</b>\n${escTg(bal.message)}`);
             } else {
                 await sendTelegram(chatId, `💰 <b>Saldo Digiflazz Saat Ini</b>\n\nSisa Saldo: <b>${formatRp(bal.deposit)}</b>`);
+            }
+        } else if (cmd === '/gangguan') {
+            const [catRes, webProducts] = await Promise.all([
+                fetchDigiflazzCatalog(),
+                fetchFirebaseJson('/products')
+            ]);
+            if (!catRes.ok) {
+                await sendTelegram(chatId, `❌ <b>Gagal konek Digiflazz</b>\n${escTg(catRes.message)}`);
+            } else if (!Array.isArray(webProducts) || webProducts.length === 0) {
+                await sendTelegram(chatId, `⚠️ Daftar produk di Firebase kosong.`);
+            } else {
+                const bySku = new Map();
+                catRes.list.forEach(p => {
+                    if (p && p.buyer_sku_code) bySku.set(String(p.buyer_sku_code).toUpperCase(), p);
+                });
+                const issues = [];
+                webProducts.forEach(wp => {
+                    const sku = String(wp.sku || '').trim().toUpperCase();
+                    const dp = bySku.get(sku);
+                    const sellPrice = Number(wp.price || 0);
+                    if (!dp) {
+                        issues.push(`❌ <code>${escTg(sku)}</code> <b>${escTg(wp.name)}</b>\n   └ SKU tidak ditemukan di katalog Digiflazz`);
+                    } else if (dp.seller_product_status !== true) {
+                        const cutOff = dp.start_cut_off && dp.end_cut_off ? ` (Cut-off ${dp.start_cut_off}–${dp.end_cut_off})` : '';
+                        issues.push(`🚨 <code>${escTg(sku)}</code> <b>${escTg(wp.name)}</b>\n   └ Seller trouble / tutup / stok habis${escTg(cutOff)}`);
+                    } else if (dp.buyer_product_status !== true) {
+                        issues.push(`⚠️ <code>${escTg(sku)}</code> <b>${escTg(wp.name)}</b>\n   └ Produk nonaktif di akun Buyer Digiflazz`);
+                    } else if (Number(dp.price || 0) > sellPrice) {
+                        issues.push(`🔻 <code>${escTg(sku)}</code> <b>${escTg(wp.name)}</b>\n   └ Modal naik (${formatRp(dp.price)}) &gt; Harga jual (${formatRp(sellPrice)})`);
+                    }
+                });
+
+                if (issues.length === 0) {
+                    await sendTelegram(chatId, `✅ <b>Semua Aman!</b>\n\nSeluruh <b>${webProducts.length} produk</b> website Anda aktif normal di seller Digiflazz dan tidak ada margin rugi.`);
+                } else {
+                    await sendTelegram(
+                        chatId,
+                        `🚨 <b>Daftar Produk Bermasalah (${issues.length}/${webProducts.length})</b>\n\n` + issues.join('\n\n')
+                    );
+                }
             }
         } else if (cmd === '/cek') {
             if (!arg) {
