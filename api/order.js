@@ -106,32 +106,83 @@ function firebaseUrl(path) {
         : `${base}${path}.json`;
 }
 
-// Simpan order ke Firebase agar muncul di riwayat pesanan customer.
-// Best-effort: kalau Firebase gagal, order tetap jalan seperti biasa.
+// Simpan order ke Firebase agar muncul di riwayat pesanan customer & admin (permanen, anti cold-start).
 async function saveOrderToFirebase(order) {
     try {
-        if (!order.invoiceId) return;
+        if (!order.invoiceId) return false;
         const url = firebaseUrl(`/orders/${encodeURIComponent(order.invoiceId)}`);
-        if (!url) return;
-        await fetch(url, {
+        if (!url) return false;
+        const r = await fetch(url, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(order)
         });
-    } catch (e) {}
+        return r.ok;
+    } catch (e) { return false; }
 }
 
 async function updateOrderStatusInFirebase(invoiceId, status, extras) {
     try {
-        if (!invoiceId) return;
+        if (!invoiceId) return false;
         const url = firebaseUrl(`/orders/${encodeURIComponent(invoiceId)}`);
-        if (!url) return;
-        await fetch(url, {
+        if (!url) return false;
+        const r = await fetch(url, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: status, paidAt: Date.now(), ...(extras || {}) })
         });
-    } catch (e) {}
+        return r.ok;
+    } catch (e) { return false; }
+}
+
+async function getOrderFromFirebase(invoiceId) {
+    try {
+        if (!invoiceId) return null;
+        const url = firebaseUrl(`/orders/${encodeURIComponent(invoiceId)}`);
+        if (!url) return null;
+        const r = await fetch(url, { cache: 'no-store' });
+        if (!r.ok) return null;
+        const data = await r.json();
+        return data && data.invoiceId ? data : null;
+    } catch (e) { return null; }
+}
+
+async function getAllOrdersFromFirebase() {
+    try {
+        const url = firebaseUrl('/orders');
+        if (!url) return null;
+        const r = await fetch(url, { cache: 'no-store' });
+        if (!r.ok) return null;
+        const data = await r.json();
+        if (!data || typeof data !== 'object') return [];
+        return Object.values(data).filter(o => o && o.invoiceId);
+    } catch (e) { return null; }
+}
+
+async function getProductsFromFirebase() {
+    try {
+        const url = firebaseUrl('/products');
+        if (!url) return null;
+        const r = await fetch(url, { cache: 'no-store' });
+        if (!r.ok) return null;
+        const data = await r.json();
+        return Array.isArray(data) && data.length > 0 ? data : null;
+    } catch (e) { return null; }
+}
+
+function mergeOrders(memMap, fbList) {
+    const byId = new Map();
+    if (Array.isArray(fbList)) {
+        fbList.forEach(o => { if (o && o.invoiceId) byId.set(o.invoiceId, o); });
+    }
+    Object.values(memMap || {}).forEach(o => {
+        if (!o || !o.invoiceId) return;
+        const existing = byId.get(o.invoiceId);
+        if (!existing || (o.status === 'PAID' && existing.status !== 'PAID')) {
+            byId.set(o.invoiceId, o);
+        }
+    });
+    return Array.from(byId.values()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 }
 
 export default async function handler(req, res) {
@@ -140,33 +191,54 @@ export default async function handler(req, res) {
     // Tidak ada lagi password default di kode.
     const adminPassword = process.env.ADMIN_PASSWORD;
 
-    // 1. CEK STATUS PEMBAYARAN OLEH PEMBELI
+    // 1. CEK STATUS PEMBAYARAN OLEH PEMBELI (Baca dari Firebase agar kebal cold-start)
     if (action === 'status') {
         const { invoiceId } = req.query;
-        const order = Object.values(global.pendingOrders).find(o => o.invoiceId === invoiceId);
+        if (!invoiceId) return res.status(200).json({ status: 'NOT_FOUND' });
+        let order = await getOrderFromFirebase(invoiceId);
+        if (!order) {
+            order = Object.values(global.pendingOrders).find(o => o && o.invoiceId === invoiceId) || null;
+        }
         if (!order) return res.status(200).json({ status: 'NOT_FOUND' });
         return res.status(200).json({ status: order.status, digiflazz: order.digiflazzResult || null });
     }
 
-    // 2. DAFTAR PESANAN UNTUK HALAMAN ADMIN
-    // Password diterima lewat body POST (cara baru, dari admin.html) atau
-    // lewat query (kompatibilitas transisi untuk admin.html versi lama).
+    // 2. DAFTAR PESANAN UNTUK HALAMAN ADMIN (Baca permanen dari Firebase + gabung memori lokal)
     if (action === 'list') {
         const supplied = (req.body && req.body.password) || req.query.password;
         if (!adminPassword || supplied !== adminPassword) {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         }
-        const orders = Object.values(global.pendingOrders).sort((a, b) => b.createdAt - a.createdAt);
+        const fbOrders = await getAllOrdersFromFirebase();
+        const orders = mergeOrders(global.pendingOrders, fbOrders).slice(0, 100);
         return res.status(200).json({ success: true, orders });
     }
 
-    // 3. APPROVE MANUAL DARI HALAMAN ADMIN
+    // 3. APPROVE MANUAL / KIRIM ULANG DIGIFLAZZ DARI HALAMAN ADMIN (Cari by invoiceId atau totalPrice di Firebase)
     if (action === 'approve' && req.method === 'POST') {
-        const { password, totalPrice } = req.body;
+        const { password, invoiceId, totalPrice } = req.body;
         if (!adminPassword || password !== adminPassword) {
             return res.status(401).json({ success: false, message: 'Password Admin salah!' });
         }
-        const order = global.pendingOrders[totalPrice];
+
+        let order = null;
+        if (invoiceId) {
+            order = await getOrderFromFirebase(invoiceId);
+            if (!order) {
+                order = Object.values(global.pendingOrders).find(o => o && o.invoiceId === invoiceId) || null;
+            }
+        }
+        if (!order && totalPrice != null) {
+            order = global.pendingOrders[totalPrice] || null;
+            if (!order) {
+                const fbOrders = await getAllOrdersFromFirebase();
+                if (Array.isArray(fbOrders)) {
+                    order = fbOrders
+                        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+                        .find(o => Number(o.totalPrice) === Number(totalPrice)) || null;
+                }
+            }
+        }
         if (!order) return res.status(404).json({ success: false, message: 'Pesanan tidak ditemukan' });
 
         order.status = 'PAID';
@@ -174,7 +246,14 @@ export default async function handler(req, res) {
         order.digiflazzResult = digiResult;
         order.deliveryStatus = digiResult.success ? 'SENT' : 'FAILED';
         order.digiflazzMessage = digiResult.message;
-        await updateOrderStatusInFirebase(order.invoiceId, 'PAID', { deliveryStatus: order.deliveryStatus, digiflazzMessage: order.digiflazzMessage });
+        global.pendingOrders[order.invoiceId] = order;
+
+        await updateOrderStatusInFirebase(order.invoiceId, 'PAID', {
+            deliveryStatus: order.deliveryStatus,
+            digiflazzMessage: order.digiflazzMessage,
+            digiflazzResult: digiResult
+        });
+
         return res.status(200).json({
             success: digiResult.success,
             message: digiResult.success
@@ -187,8 +266,6 @@ export default async function handler(req, res) {
     // 4. WEBHOOK OTOMATIS DARI NOTIFIKASI HP ANDROID (GOPAY MERCHANT)
     if (action === 'mutasi') {
         const secret = req.query.secret || req.body?.secret;
-        // Tanpa WEBHOOK_SECRET di Vercel, semua panggilan mutasi ditolak
-        // (fail-closed). Tidak ada lagi secret default di kode.
         const expectedSecret = process.env.WEBHOOK_SECRET;
 
         if (!expectedSecret || secret !== expectedSecret) {
@@ -198,8 +275,11 @@ export default async function handler(req, res) {
         const rawNotif = req.query.text || req.body?.text || JSON.stringify(req.body || '');
         const cleanNotif = rawNotif.replace(/,00\b/g, '').replace(/[.,]/g, '');
 
-        const matchedOrder = Object.values(global.pendingOrders).find(
-            o => o.status === 'PENDING' && cleanNotif.includes(String(o.totalPrice))
+        // Cari pesanan PENDING terbaru dari Firebase + memori (kebal cold-start Vercel)
+        const fbOrders = await getAllOrdersFromFirebase();
+        const allOrders = mergeOrders(global.pendingOrders, fbOrders);
+        const matchedOrder = allOrders.find(
+            o => o.status === 'PENDING' && o.totalPrice && cleanNotif.includes(String(o.totalPrice))
         );
 
         if (!matchedOrder) {
@@ -211,7 +291,13 @@ export default async function handler(req, res) {
         matchedOrder.digiflazzResult = digiResult;
         matchedOrder.deliveryStatus = digiResult.success ? 'SENT' : 'FAILED';
         matchedOrder.digiflazzMessage = digiResult.message;
-        await updateOrderStatusInFirebase(matchedOrder.invoiceId, 'PAID', { deliveryStatus: matchedOrder.deliveryStatus, digiflazzMessage: matchedOrder.digiflazzMessage });
+        global.pendingOrders[matchedOrder.invoiceId] = matchedOrder;
+
+        await updateOrderStatusInFirebase(matchedOrder.invoiceId, 'PAID', {
+            deliveryStatus: matchedOrder.deliveryStatus,
+            digiflazzMessage: matchedOrder.digiflazzMessage,
+            digiflazzResult: digiResult
+        });
 
         return res.status(200).json({
             success: digiResult.success,
@@ -228,11 +314,49 @@ export default async function handler(req, res) {
     }
 
     const { userId, zoneId, nickname, item, sku, price, paymentMethod, whatsapp } = req.body;
+    if (!userId || !zoneId || !sku) {
+        return res.status(400).json({ success: false, message: 'Data akun dan produk wajib diisi!' });
+    }
+
+    // Validasi harga asli dari Firebase /products di sisi server (anti manipulasi harga dari browser!)
+    const fbProducts = await getProductsFromFirebase();
+    let verifiedPrice = parseInt(price, 10);
+    let verifiedItem = item;
+    const skuNorm = String(sku).trim().toUpperCase();
+
+    if (fbProducts) {
+        const matchedProd = fbProducts.find(p => p && String(p.sku || '').trim().toUpperCase() === skuNorm);
+        if (!matchedProd) {
+            return res.status(400).json({ success: false, message: 'Produk / SKU tidak valid atau sudah tidak tersedia.' });
+        }
+        verifiedPrice = parseInt(matchedProd.price, 10);
+        verifiedItem = matchedProd.name || item;
+    }
+
+    if (!Number.isFinite(verifiedPrice) || verifiedPrice < 500) {
+        return res.status(400).json({ success: false, message: 'Harga produk tidak valid.' });
+    }
+
+    // Cegah tabrakan nominal unik dengan pesanan PENDING aktif dalam 3 jam terakhir
+    const fbOrders = await getAllOrdersFromFirebase();
+    const recentOrders = mergeOrders(global.pendingOrders, fbOrders);
+    const threeHoursAgo = Date.now() - 3 * 60 * 60 * 1000;
+    const activePendingTotals = new Set(
+        recentOrders
+            .filter(o => o.status === 'PENDING' && (o.createdAt || 0) >= threeHoursAgo)
+            .map(o => Number(o.totalPrice))
+    );
+
+    let uniqueCode = Math.floor(11 + Math.random() * 89);
+    for (let attempt = 0; attempt < 30; attempt++) {
+        if (!activePendingTotals.has(verifiedPrice + uniqueCode)) break;
+        uniqueCode = Math.floor(11 + Math.random() * 189);
+    }
+
     const randomNum = Math.floor(100000 + Math.random() * 900000);
     const invoiceId = `SEAN-${randomNum}`;
-    const uniqueCode = Math.floor(11 + Math.random() * 89);
-    const totalPrice = parseInt(price) + uniqueCode;
-    const customerNo = `${userId}${zoneId}`;
+    const totalPrice = verifiedPrice + uniqueCode;
+    const customerNo = `${String(userId).trim()}${String(zoneId).trim()}`;
 
     const staticQris = process.env.GOPAY_QRIS_STATIC;
     let qrDataString = `SEANTOPUP|${invoiceId}|${totalPrice}`;
@@ -247,17 +371,21 @@ export default async function handler(req, res) {
 
     const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=10&data=${encodeURIComponent(qrDataString)}`;
 
-    global.pendingOrders[totalPrice] = {
-        invoiceId, userId, zoneId, customerNo, nickname, item, sku, totalPrice, whatsapp,
-        price: parseInt(price), uniqueCode, paymentMethod, qrImage, wa: normalizeWa(whatsapp),
+    const newOrder = {
+        invoiceId, userId: String(userId).trim(), zoneId: String(zoneId).trim(),
+        customerNo, nickname, item: verifiedItem, sku: skuNorm, totalPrice, whatsapp,
+        price: verifiedPrice, uniqueCode, paymentMethod, qrImage, wa: normalizeWa(whatsapp),
         status: 'PENDING',
         createdAt: Date.now()
     };
 
-    // Simpan ke Firebase agar muncul di riwayat pesanan customer (best-effort).
-    await saveOrderToFirebase(global.pendingOrders[totalPrice]);
+    global.pendingOrders[invoiceId] = newOrder;
+
+    // Simpan ke Firebase agar muncul di riwayat pesanan customer & admin (permanen).
+    await saveOrderToFirebase(newOrder);
 
     return res.status(200).json({
-        success: true, invoiceId, nickname, item, sku, paymentMethod, totalPrice, uniqueCode, qrImage
+        success: true, invoiceId, nickname, item: verifiedItem, sku: skuNorm,
+        paymentMethod, totalPrice, uniqueCode, qrImage
     });
 }
