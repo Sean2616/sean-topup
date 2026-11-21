@@ -90,6 +90,47 @@ function normalizeWa(input) {
     return digits;
 }
 
+function escTg(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function formatRp(n) {
+    return 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+}
+
+// Kirim notifikasi ke Bot Telegram Admin (best-effort, tidak pernah memblokir transaksi)
+async function notifyTelegram(htmlText) {
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const rawIds = process.env.TELEGRAM_CHAT_ID || '';
+    const chatIds = rawIds.split(',').map(s => s.trim()).filter(Boolean);
+    if (!token || chatIds.length === 0) return;
+
+    await Promise.all(chatIds.map(async (chatId) => {
+        try {
+            const ctrl = new AbortController();
+            const t = setTimeout(() => ctrl.abort(), 4000);
+            try {
+                await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: htmlText,
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: true
+                    }),
+                    signal: ctrl.signal
+                });
+            } finally {
+                clearTimeout(t);
+            }
+        } catch (e) {}
+    }));
+}
+
 // URL Firebase dengan Database Secret (?auth=).
 // Secret HANYA dibaca dari environment variable FIREBASE_DB_SECRET di Vercel.
 // Jangan pernah menulis secret di file kode atau commit ke GitHub.
@@ -254,6 +295,15 @@ export default async function handler(req, res) {
             digiflazzResult: digiResult
         });
 
+        await notifyTelegram(
+            `${digiResult.success ? '✅' : '❌'} <b>Approve Manual Admin — ${escTg(order.invoiceId)}</b>\n\n` +
+            `• Item: <b>${escTg(order.item)}</b> (<code>${escTg(order.sku)}</code>)\n` +
+            `• Akun: ${escTg(order.nickname || '-')} (<code>${escTg(order.userId)}</code> / <code>${escTg(order.zoneId)}</code>)\n` +
+            `• Total: <b>${formatRp(order.totalPrice)}</b>\n` +
+            `• Digiflazz: <b>${escTg(digiResult.status)}</b> — ${escTg(digiResult.message)}` +
+            (digiResult.sn ? `\n• SN: <code>${escTg(digiResult.sn)}</code>` : '')
+        );
+
         return res.status(200).json({
             success: digiResult.success,
             message: digiResult.success
@@ -298,6 +348,17 @@ export default async function handler(req, res) {
             digiflazzMessage: matchedOrder.digiflazzMessage,
             digiflazzResult: digiResult
         });
+
+        await notifyTelegram(
+            `${digiResult.success ? '💰✅' : '💰❌'} <b>Pembayaran QRIS Masuk (Auto) — ${escTg(matchedOrder.invoiceId)}</b>\n\n` +
+            `• Item: <b>${escTg(matchedOrder.item)}</b> (<code>${escTg(matchedOrder.sku)}</code>)\n` +
+            `• Akun: ${escTg(matchedOrder.nickname || '-')} (<code>${escTg(matchedOrder.userId)}</code> / <code>${escTg(matchedOrder.zoneId)}</code>)\n` +
+            `• Total Bayar: <b>${formatRp(matchedOrder.totalPrice)}</b>\n` +
+            `• WA Pembeli: ${escTg(matchedOrder.whatsapp || '-')}\n` +
+            `• Digiflazz: <b>${escTg(digiResult.status)}</b> — ${escTg(digiResult.message)}` +
+            (digiResult.sn ? `\n• SN: <code>${escTg(digiResult.sn)}</code>` : '') +
+            (!digiResult.success ? `\n\n👉 Kirim ulang via bot: <code>/kirim ${escTg(matchedOrder.invoiceId)}</code>` : '')
+        );
 
         return res.status(200).json({
             success: digiResult.success,
@@ -383,6 +444,17 @@ export default async function handler(req, res) {
 
     // Simpan ke Firebase agar muncul di riwayat pesanan customer & admin (permanen).
     await saveOrderToFirebase(newOrder);
+
+    await notifyTelegram(
+        `🆕 <b>Pesanan Baru Masuk (PENDING)</b>\n\n` +
+        `• Invoice: <code>${escTg(invoiceId)}</code>\n` +
+        `• Item: <b>${escTg(verifiedItem)}</b> (<code>${escTg(skuNorm)}</code>)\n` +
+        `• Akun MLBB: ${escTg(nickname || '-')} (<code>${escTg(newOrder.userId)}</code> / <code>${escTg(newOrder.zoneId)}</code>)\n` +
+        `• Total Unik: <b>${formatRp(totalPrice)}</b> (Kode Unik: +${uniqueCode})\n` +
+        `• WA Pembeli: ${escTg(whatsapp || '-')}\n\n` +
+        `⏳ Menunggu pembayaran QRIS...\n` +
+        `👉 Approve manual: <code>/kirim ${escTg(invoiceId)}</code>`
+    );
 
     return res.status(200).json({
         success: true, invoiceId, nickname, item: verifiedItem, sku: skuNorm,
